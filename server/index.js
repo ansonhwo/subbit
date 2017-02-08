@@ -44,7 +44,12 @@ app.post('/connect', ({ body }, res) => {
   })
 })
 
-// Get transactions for the provided user
+// Need a route to check what accounts the active user currently has
+// and if access tokens exist, loop through all to get all of the appropriate
+// accounts and transactions
+
+// Need to refactor this to accept the user name as an argument rather than the
+// access token
 app.post('/connect/get', ({ body }, res) => {
   console.log('POST /connect/get')
   const access_token = body.token
@@ -56,6 +61,9 @@ app.post('/connect/get', ({ body }, res) => {
   })
 })
 
+// Need a route to handle access token deletion
+
+// API Testing for account transactions
 const access_token = '18e05de266ef2c0436328e74634ddf91c3aa46f5e7f5ae9dd8a92a2ae4f9ef5c069ed155bfdbecc5ad0fa732b7be52cb8c38afb6a63e7eaee884abdf6234af39f8f460a0d96f46c5efa3e5f437ea8eb0'
 plaidClient.getConnectUser(access_token, {}, (err, response) => {
   if (err !== null) {
@@ -63,17 +71,10 @@ plaidClient.getConnectUser(access_token, {}, (err, response) => {
     console.log('Could not retrieve auth user')
   }
   else {
+    // Accounts: response.accounts, Transactions: response.transactions
     console.log('Auth user account details:')
-    console.log(response.transactions)
+    console.log(response)
   }
 })
-/**
-plaidClient.getConnectUser('test_citi', {}, (err, response) => {
-  if (err !== null) console.log('Could not retrieve auth test user')
-  else {
-    console.log('Auth test user account details:')
-    console.log(response.transactions)
-  }
-})**/
 
 app.listen(APP_PORT, () => console.log(`Listening on ${APP_PORT}`))
