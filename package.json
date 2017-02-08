@@ -6,12 +6,18 @@
   "scripts": {
     "bundle": "browserify -t babelify client/index.js -o server/public/main.js",
     "bundle:watch": "watchify -v -t babelify client/index.js -o server/public/main.js",
+    "migrate:make": "knex migrate:make",
+    "migrate": "knex migrate:latest",
+    "rollback": "knex migrate:rollback",
     "start": "PLAID_CLIENT_ID=5895125cbdc6a41dfd904590 PLAID_SECRET=798c97303f8c1ffdb8f625c6d1626c node server/index.js",
     "watch": "PLAID_CLIENT_ID=5895125cbdc6a41dfd904590 PLAID_SECRET=798c97303f8c1ffdb8f625c6d1626c nodemon server/index.js"
   },
   "dependencies": {
     "body-parser": "^1.16.0",
+    "cryptr": "^2.0.0",
     "express": "^4.14.1",
+    "knex": "^0.12.6",
+    "pg": "^6.1.2",
     "plaid": "^1.2.0",
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
