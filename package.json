@@ -6,8 +6,8 @@
   "scripts": {
     "bundle": "browserify -t babelify client/index.js -o server/public/main.js",
     "bundle:watch": "watchify -v -t babelify client/index.js -o server/public/main.js",
-    "start": "node server/index.js",
-    "watch": "nodemon server/index.js",
+    "start": "PLAID_CLIENT_ID=5895125cbdc6a41dfd904590 PLAID_SECRET=798c97303f8c1ffdb8f625c6d1626c node server/index.js",
+    "watch": "PLAID_CLIENT_ID=5895125cbdc6a41dfd904590 PLAID_SECRET=798c97303f8c1ffdb8f625c6d1626c nodemon server/index.js"
   },
   "dependencies": {
     "body-parser": "^1.16.0",
@@ -15,7 +15,7 @@
     "plaid": "^1.2.0",
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
-    "react-plaid-link": "^0.1.7",
+    "react-redux": "^5.0.2",
     "redux": "^3.6.0",
     "redux-thunk": "^2.2.0"
   },
