@@ -9,6 +9,7 @@ connect user: 18e05de266ef2c0436328e74634ddf91c3aa46f5e7f5ae9dd8a92a2ae4f9ef5c06
 test client: test_id
 test secret: test_secret
 test access: test_chase, test_wells, test_citi, etc.
+
 **/
 
 const express = require('express')
@@ -81,34 +82,31 @@ app.post('/connect/get', ({ body }, res) => {
     .then(res => {
       // Checking if the current user has any previously registered accounts
       const tokens = res[0].tokens
-      const transactions = []
-      const accounts = []
+      let transactions = [], accounts = []
 
-      /**
-      if (tokens.length > 0) {
-        tokens.map(token => {
-          plaidClient.getConnectUser(token, {}, (err, response) => {
-            // returns arrays of objects
-            accounts = [...accounts, ...response.accounts]
-            transactions = [...transactions, ...response.transactions]
-          })
+      if (!tokens.length) return []
+
+      return Promise.all(tokens.map(token => {
+        return getMemberData(token)
+      }))
+        .then(responses => {
+          return responses.map(formatResponse)
         })
-      }**/
-
-      res.status(201).json({ accounts, transactions })
+        .then(responses => responses.reduce((obj, data) => {
+          obj.accounts = [...obj.accounts, ...data.accounts]
+          obj.transactions = [...obj.transactions, ...data.transactions]
+          return obj
+        }, { transactions, accounts }))
     })
-    .catch(err => res.sendStatus(404))
-
-  plaidClient.getConnectUser(access_token, {}, (err, response) => {
-    res.json({ transactions: response.transactions })
-  })
+    .then(result => res.json(result))
 })
 
 // Need a route to handle access token deletion
 
 // API Testing for account transactions
 
-/**const access_token = '18e05de266ef2c0436328e74634ddf91c3aa46f5e7f5ae9dd8a92a2ae4f9ef5c069ed155bfdbecc5ad0fa732b7be52cb8c38afb6a63e7eaee884abdf6234af39f8f460a0d96f46c5efa3e5f437ea8eb0'
+//const access_token = '18e05de266ef2c0436328e74634ddf91c3aa46f5e7f5ae9dd8a92a2ae4f9ef5c069ed155bfdbecc5ad0fa732b7be52cb8c38afb6a63e7eaee884abdf6234af39f8f460a0d96f46c5efa3e5f437ea8eb0'
+/**const access_token = 'test_chase'
 plaidClient.getConnectUser(access_token, {}, (err, response) => {
   if (err !== null) {
     console.log(err)
@@ -117,7 +115,7 @@ plaidClient.getConnectUser(access_token, {}, (err, response) => {
   else {
     // Accounts: response.accounts, Transactions: response.transactions
     console.log('Auth user account details:')
-    console.log(response)
+    console.log(JSON.stringify(response, null, 2))
   }
 })**/
 
@@ -131,36 +129,47 @@ const decrypted = cryptr.decrypt(encrypted)
 console.log(encrypted)
 console.log(decrypted)**/
 
-knex('users')
-  .select('tokens')
-  .where('username', 'ahwong')
-  .then(res => {
-    // Checking if the current user has any previously registered accounts
-    const tokens = res[0].tokens
-    let transactions = [], accounts = []
+// Asynchronously fetch a series of account details for a collection of tokens
+function getMemberData(token) {
+  return new Promise((resolve, reject) => {
+    plaidClient.getConnectUser(token, {}, (err, response) => {
+      if (err) reject(err)
+      else resolve(response)
+    })
+  })
+}
 
-    if (tokens.length > 0) {
-
-      getAllAccounts(tokens)
-        .then(res => console.log('all done'))
-      /**
-      tokens.map(token => {
-        plaidClient.getConnectUser(token, {}, (err, response) => {
-          // returns arrays of objects
-          accounts = [...accounts, ...response.accounts]
-          transactions = [...transactions, ...response.transactions]
-        })
-      })**/
-
-      //accountDetails(tokens).then(() => console.log('all done'))
+// Format accounts objects with relevant information
+function formatAccounts(accounts) {
+  return accounts.map(account => {
+    return {
+      balance: account.balance.current,
+      number: account.meta.number,
+      type: account.type
     }
   })
+}
 
-// Asynchronously fetch a series of account details for a collection of tokens
-function getAllAccounts(tokens) {
-  return new Promise((resolve, reject) => {
-    
+// Format transaction objects with relevant information
+function formatTransactions(transactions) {
+  return transactions.filter(transaction => {
+    return !transaction.pending
   })
+    .map(transaction => {
+      return {
+        amount: transaction.amount,
+        date: transaction.date,
+        name: transaction.name
+      }
+    })
+}
+
+// Format response objects with relevant information
+function formatResponse(response) {
+  return {
+    accounts: formatAccounts(response.accounts),
+    transactions: formatTransactions(response.transactions)
+  }
 }
 
 app.listen(APP_PORT, () => console.log(`Listening on ${APP_PORT}`))
