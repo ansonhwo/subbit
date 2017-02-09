@@ -3,37 +3,36 @@ const { connect } = require('react-redux')
 
 const { linkAccount, linkDone } = require('../actions/actions.js')
 
-const Link = ({ clickHandler }) => {
+// Should move accounts.length display to another component
+const Link = ({ view, accounts, addAccount }) => {
   return (
-    <div className="ui container">
-      <h1>Subbit</h1>
-      <button className="ui blue button" onClick={ clickHandler }>Link your account</button>
-    </div>
+    view === 'link'
+      ? (
+        <div className="ui container">
+          {
+            accounts.length
+              ? <div></div>
+              : null
+          }
+          <button className="ui blue button" onClick={ addAccount }>Link your account</button>
+        </div>
+      )
+      : null
   )
+}
+
+const mapProps = state => {
+  return {
+    view: state.view,
+    accounts: state.accounts
+  }
 }
 
 const mapDispatch = dispatch => {
   return {
-    clickHandler: (event) => {
-      // Check if an account token already exists
-      /**
-      options = {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ token: res.access_token })
-      }
-
-      // Need to refactor to just send the username in POST body
-      console.log('Fetch to POST /connect/get')
-      // Access token: 18e05de266ef2c0436328e74634ddf91c3aa46f5e7f5ae9dd8a92a2ae4f9ef5c069ed155bfdbecc5ad0fa732b7be52cbe53803e4c77863b19874085bcc76445a15991979dc122b8909df2ccd66204ba0
-      fetch('/connect/get', options)
-        .then(res => res.json())
-        .then(res => console.log(res))
-      **/
-
-      // If not, create a link handler
+    addAccount: (event) => {
+      //console.log(document.querySelector('#user .text').value)
+      // Link handler for Plaid Link module
       const linkHandler = Plaid.create({
         clientName: '',
         env: 'tartan',
@@ -45,7 +44,7 @@ const mapDispatch = dispatch => {
             headers: {
               'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ token })
+            body: JSON.stringify({ token, institution: metadata.institution.type })
           }
           // Send fetch request to POST /accounts
           // Request should add a new account token to the database
@@ -71,4 +70,4 @@ const mapDispatch = dispatch => {
   }
 }
 
-module.exports = connect(null, mapDispatch)(Link)
+module.exports = connect(mapProps, mapDispatch)(Link)

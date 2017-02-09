@@ -39,14 +39,20 @@ const plaidClient = new plaid.Client(
 app.use(express.static(__dirname + '/public'))
 app.use(bodyParser.json())
 
-// Get all accounts associated with the provided institution & provided credentials
+// Add new account credentials for a user
 app.post('/connect', ({ body }, res) => {
   console.log('POST /connect')
   const public_token = body.token
 
+  // Need to check an access token doesn't already exist on the current user
+  // for the given institution
+  /**knex('users')
+    .select('inst_ids')
+    .where('username', )**/
+
   // Exchange public token for a user access token
   plaidClient.exchangeToken(public_token, (err, tokenResponse) => {
-    if (err !== null) res.json({ error: 'Unable to exchange public token' })
+    if (err) res.json({ error: 'Unable to exchange public token' })
     else {
       // Successful token exchange
       // Store the resulting access token into the database
@@ -54,9 +60,9 @@ app.post('/connect', ({ body }, res) => {
       console.log(`access_token: ${access_token}`)
 
       plaidClient.getConnectUser(access_token, (err, authResponse) => {
-        if (err !== null) res.json({ error: 'Unable to pull accounts from Plaid API' })
+        if (err) res.json({ error: 'Unable to pull accounts from Plaid API' })
         else {
-          console.log(authResponse)
+          //console.log(authResponse)
           // Filter out sensitive information
           // Return all of the user accounts
           res.json({ accounts: authResponse.accounts, access_token })
@@ -66,37 +72,39 @@ app.post('/connect', ({ body }, res) => {
   })
 })
 
-// Need a route to check what accounts the active user currently has
-// and if access tokens exist, loop through all to get all of the appropriate
-// accounts and transactions
-
-// Need to refactor this to accept the user name as an argument rather than the
-// access token
+// Get user account and associated transaction information
 app.post('/connect/get', ({ body }, res) => {
   console.log('POST /connect/get')
   const username = body.username
 
+  // Checking if the current user has any previously registered accounts
   knex('users')
     .select('tokens')
     .where('username', username)
     .then(res => {
-      // Checking if the current user has any previously registered accounts
+
       const tokens = res[0].tokens
       let transactions = [], accounts = []
 
+      // If no registered accounts, return nothing
       if (!tokens.length) return []
 
+      // Registered accounts found, return account & transaction information
+      // for all registered accounts
       return Promise.all(tokens.map(token => {
         return getMemberData(token)
       }))
+        // Filter out irrelevant information
         .then(responses => {
           return responses.map(formatResponse)
         })
+        // Build a new object with the formatted information
         .then(responses => responses.reduce((obj, data) => {
           obj.accounts = [...obj.accounts, ...data.accounts]
           obj.transactions = [...obj.transactions, ...data.transactions]
           return obj
         }, { transactions, accounts }))
+
     })
     .then(result => res.json(result))
 })
@@ -104,9 +112,9 @@ app.post('/connect/get', ({ body }, res) => {
 // Need a route to handle access token deletion
 
 // API Testing for account transactions
-
-//const access_token = '18e05de266ef2c0436328e74634ddf91c3aa46f5e7f5ae9dd8a92a2ae4f9ef5c069ed155bfdbecc5ad0fa732b7be52cb8c38afb6a63e7eaee884abdf6234af39f8f460a0d96f46c5efa3e5f437ea8eb0'
-/**const access_token = 'test_chase'
+/**
+const access_token = '18e05de266ef2c0436328e74634ddf91c3aa46f5e7f5ae9dd8a92a2ae4f9ef5c069ed155bfdbecc5ad0fa732b7be52cb8c38afb6a63e7eaee884abdf6234af39f8f460a0d96f46c5efa3e5f437ea8eb0'
+//const access_token = 'test_chase'
 plaidClient.getConnectUser(access_token, {}, (err, response) => {
   if (err !== null) {
     console.log(err)
@@ -139,13 +147,14 @@ function getMemberData(token) {
   })
 }
 
-// Format accounts objects with relevant information
+// Format account objects with relevant information
 function formatAccounts(accounts) {
   return accounts.map(account => {
     return {
       balance: account.balance.current,
       number: account.meta.number,
-      type: account.type
+      type: account.type,
+      institution_type: account.institution_type
     }
   })
 }

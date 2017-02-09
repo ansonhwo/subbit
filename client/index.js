@@ -4,6 +4,7 @@ const { Provider } = require('react-redux')
 
 const App = require('./components/app.js')
 const store = require('./store/store.js')
+const { fetchUsers } = require('./actions/actions.js')
 
 ReactDOM.render(
   <Provider store={ store }>
@@ -11,3 +12,5 @@ ReactDOM.render(
   </Provider>,
   document.getElementById('app')
 )
+
+//store.dispatch(fetchUsers())

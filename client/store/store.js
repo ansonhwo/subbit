@@ -4,7 +4,11 @@ const reducer = require('../reducers/reducer.js')
 
 const initialState = {
   accounts: [],
-  loadAccounts: false
+  transactions: [],
+  loadAccounts: false,
+  users: ['test1', 'test2'],
+  username: '',
+  view: 'login'
 }
 
 module.exports = createStore(reducer, initialState, applyMiddleware(thunk))

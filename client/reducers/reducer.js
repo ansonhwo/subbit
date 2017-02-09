@@ -11,6 +11,16 @@ const reducer = (state, action) => {
         accounts: [...state.accounts, ...action.accounts],
         loadAccounts: false
       })
+    case 'CHANGE_USER':
+      console.log('Changing active user')
+      return Object.assign({}, state, {
+        username: action.user
+      })
+    case 'CHANGE_VIEW':
+      console.log(`Changing view status to ${action.view}`)
+      return Object.assign({}, state, {
+        view: action.view
+      })
     default:
       return state
   }
