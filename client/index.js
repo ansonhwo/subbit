@@ -13,4 +13,4 @@ ReactDOM.render(
   document.getElementById('app')
 )
 
-//store.dispatch(fetchUsers())
+store.dispatch(fetchUsers())

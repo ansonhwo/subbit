@@ -1,59 +1,50 @@
 const React = require('react')
 const { connect } = require('react-redux')
 
+const Accounts = require('./accounts.js')
+const store = require('../store/store.js')
 const { linkAccount, linkDone } = require('../actions/actions.js')
 
 // Should move accounts.length display to another component
-const Link = ({ view, accounts, addAccount }) => {
+const Link = ({ addAccount }) => {
   return (
-    view === 'link'
-      ? (
-        <div className="ui container">
-          {
-            accounts.length
-              ? <div></div>
-              : null
-          }
-          <button className="ui blue button" onClick={ addAccount }>Link your account</button>
-        </div>
-      )
-      : null
+    <div id="link" className="ui container">
+      <Accounts />
+      <button className="ui blue button" onClick={ addAccount }>Link your account</button>
+    </div>
   )
-}
-
-const mapProps = state => {
-  return {
-    view: state.view,
-    accounts: state.accounts
-  }
 }
 
 const mapDispatch = dispatch => {
   return {
     addAccount: (event) => {
-      //console.log(document.querySelector('#user .text').value)
+      const username = store.getState().username
       // Link handler for Plaid Link module
       const linkHandler = Plaid.create({
-        clientName: '',
+        clientName: username,
         env: 'tartan',
         product: 'connect',
         key: 'a1430f4f27921e4c6bdf5f37edfcfa',
         onSuccess: (token, metadata) => {
           let options = {
-            method: 'POST',
+            method: 'PUT',
             headers: {
               'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ token, institution: metadata.institution.type })
+            body: JSON.stringify({ token, institution: metadata.institution.type, username })
           }
-          // Send fetch request to POST /accounts
+          // Send fetch request to PUT /accounts
           // Request should add a new account token to the database
-          console.log('Fetch to POST /connect')
+          console.log('Fetch to PUT /connect')
           fetch('/connect', options)
-            .then(res => res.json())
             .then(res => {
-              dispatch(linkDone())
+              console.log('\tParsing response...')
+              res.json()
+            })
+            .then(res => {
               console.log(res)
+              console.log('\tSuccessfully linked an account!')
+              dispatch(linkDone())
             })
             .catch(err => console.error(err))
         },
@@ -70,4 +61,4 @@ const mapDispatch = dispatch => {
   }
 }
 
-module.exports = connect(mapProps, mapDispatch)(Link)
+module.exports = connect(null, mapDispatch)(Link)

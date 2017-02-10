@@ -1,13 +1,11 @@
 const React = require('react')
-const Link = require('./link.js')
-const Login = require('./login.js')
+
+const View = require('./view.js')
 
 const App = () => {
   return (
     <div>
-      <h1>Subbit</h1>
-      <Login />
-      <Link />
+      <View />
     </div>
   )
 }

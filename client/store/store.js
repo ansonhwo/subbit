@@ -6,9 +6,9 @@ const initialState = {
   accounts: [],
   transactions: [],
   loadAccounts: false,
-  users: ['test1', 'test2'],
-  username: '',
-  view: 'login'
+  users: [],
+  username: 'User',
+  view: 'landing'
 }
 
 module.exports = createStore(reducer, initialState, applyMiddleware(thunk))

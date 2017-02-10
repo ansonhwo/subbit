@@ -12,14 +12,26 @@ const reducer = (state, action) => {
         loadAccounts: false
       })
     case 'CHANGE_USER':
-      console.log('Changing active user')
+      console.log(`Changing active user to ${action.username}`)
       return Object.assign({}, state, {
-        username: action.user
+        username: action.username
       })
     case 'CHANGE_VIEW':
       console.log(`Changing view status to ${action.view}`)
       return Object.assign({}, state, {
         view: action.view
+      })
+    case 'GET_MEMBERDATA':
+      console.log('Member data update')
+      console.log(action.memberData)
+      return Object.assign({}, state, {
+        accounts: memberData.accounts,
+        transactions: memberData.transactions
+      })
+    case 'GET_USERS':
+      console.log('Populating users list')
+      return Object.assign({}, state, {
+        users: action.users
       })
     default:
       return state

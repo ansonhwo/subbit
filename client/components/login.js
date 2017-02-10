@@ -1,33 +1,41 @@
 const React = require('react')
 const { connect } = require('react-redux')
-const { changeUser, newView } = require('../actions/actions.js')
+const { changeUser, changeView, fetchAccounts } = require('../actions/actions.js')
 
-const Login = ({ view, users, username, changeUser }) => {
+const Login = ({ users, username, changeUser }) => {
   return (
-    view === 'login'
-      ? (
-        <div id="login" className="ui container">
-          <p>Login</p>
-          <div className="ui simple dropdown">
-            <div className="text">{ username }</div>
-            <i className="dropdown icon"></i>
-            <div className="menu">
-              {
-                users.map((user, i) => {
-                  return <div key={ i } className="item" onClick={ changeUser }>{ user }</div>
-                })
-              }
+    <div id="login">
+      {
+        username !== 'User'
+          ? (
+            <div className="ui positive message">
+              <span className="content">
+                <p><i className="notched circle loading icon"></i> Logging you in...</p>
+              </span>
             </div>
+          )
+          : null
+      }
+      <div className="ui fluid segment">
+        <p className="header">Login</p>
+        <div className="ui simple selection dropdown">
+          <div className="text">{ username }</div>
+          <i className="dropdown icon"></i>
+          <div className="menu">
+            {
+              users.map((user, i) => {
+                return <div key={ i } className="item" onClick={ changeUser }>{ user }</div>
+              })
+            }
           </div>
         </div>
-      )
-      : null
+      </div>
+    </div>
   )
 }
 
 const mapProps = state => {
   return {
-    view: state.view,
     username: state.username,
     users: state.users
   }
@@ -36,11 +44,12 @@ const mapProps = state => {
 const mapDispatch = dispatch => {
   return {
     changeUser: (event) => {
-      console.log(event.target.value)
-      dispatch(changeUser(event.target.value))
-      dispatch(newView('link'))
-      // Need to fetch to check if the current user has any existing accounts
-      // and if so, add the account information
+      const user = event.target.textContent
+      dispatch(changeUser(user))
+      dispatch(fetchAccounts(user))
+      setTimeout(() => {
+        dispatch(changeView('link'))
+      }, 3000)
     }
   }
 }
