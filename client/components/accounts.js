@@ -1,17 +1,28 @@
 const React = require('react')
 const { connect } = require('react-redux')
 
-const Accounts = ({ accounts }) => {
+const Accounts = ({ accounts, institutions }) => {
   return (
     <div>
       <p>Accounts</p>
       {
-        accounts.length
+        institutions.length
           ? (
-            accounts.map((account, i) => {
+            institutions.map((inst, i) => {
+              // For every institution, render accounts that match that institution
               return (
-                <div key={ i } className="ui raised segment">
-                  <p><i className={ ( account.type === 'credit' ? "payment" : "inbox") + " icon" }></i> { account.name } { account.balance }</p>
+                <div key={ inst+i } className="ui container">
+                  <p><strong>{ inst }</strong></p>
+                  {
+                    accounts.filter(account => account.inst_name === inst)
+                    .map((account, j) => {
+                      return (
+                        <div key={ account+j } className="ui raised segment">
+                          <p><i className={ ( account.type === 'credit' ? "payment" : "inbox") + " icon" }></i> { account.name } { account.balance }</p>
+                        </div>
+                      )
+                    })
+                  }
                 </div>
               )
             })
@@ -24,7 +35,8 @@ const Accounts = ({ accounts }) => {
 
 const mapProps = state => {
   return {
-    accounts: state.accounts
+    accounts: state.accounts,
+    institutions: state.institutions
   }
 }
 

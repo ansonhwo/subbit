@@ -31,7 +31,8 @@ const reducer = (state, action) => {
       console.log(action.memberData)
       return Object.assign({}, state, {
         accounts: action.memberData.accounts,
-        transactions: action.memberData.transactions
+        transactions: action.memberData.transactions,
+        institutions: action.memberData.inst_names
       })
     case 'GET_USERS':
       console.log('Populating users list')

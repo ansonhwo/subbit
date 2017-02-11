@@ -61,65 +61,51 @@ app.put('/connect', ({ body }, res) => {
 
   console.log('PUT /connect')
   const { token, inst_name, inst_type, username } = body
+  console.log(`token: ${token}\ninst_name: ${inst_name}\ninst_type: ${inst_type}\nusername: ${username}`)
 
   knex('institutions')
     .select('inst_id')
-    .then(instIds => {
+    .where('inst_id', inst_type)
+    .then(instId => {
       console.log('check institutions table')
+      console.log(instId)
       // Check if the provided institution already exists
-      if (!instIds.length) return false
-
-      for (let i = 0; i < instIds.length; i++) {
-        if (instIds[i].inst_id === inst_type) return true
-      }
-
-      return false
+      if (!instId.length) return false
+      else return true
     })
     .then(institution => {
       console.log(`institution exists? ${institution}`)
       // Add a new institution type if it doesn't already exist
       if (institution) return null
 
-      return knex('userdata')
+      console.log('add new institution type & name')
+      return knex('institutions')
         .insert({
           inst_id: inst_type,
           inst_name
         })
+        .then(_ => null)
     })
     .then(_ => {
+      console.log('query userdata table to see what accounts have been linked')
       // Check what accounts the user has already linked
       return knex('userdata')
-        .select('inst_id', 'token')
-        .where('username', username)
+        .select('inst_id')
+        .where({
+          username,
+          inst_id: inst_type
+        })
         .then(userData => {
           console.log(`has the user already registered an account at ${inst_name}?`)
           // Has the user already registered an account with the provided institution?
           if (!userData.length) return false
 
-          for (let i = 0; i < userData.length; i++) {
-            if (userData[i].inst_id === inst_type) return true
-          }
-
-          return false
-          /**
-          const member = userData.reduce((obj, data) => {
-            let { inst_ids, tokens, found } = obj
-
-            if (!inst_ids.includes(data.inst_id)) inst_ids.push(data.inst_id)
-            if (!tokens.includes(data.token)) tokens.push(data.token)
-
-            // Check if the user already linked their account to the provided institution
-            if (data.inst_id === inst_type) found = !found
-
-            return { inst_ids, tokens, found }
-          }, { inst_ids: [], tokens: [], found: false })
-
-          return member**/
+          else return true
         })
     })
     .then(registered => {
       // User has already registered with the provided institution
-      console.log('user is registered?')
+      console.log(`user is registered? ${registered}`)
       if (registered) return false
 
       console.log('nope, get access token')
@@ -137,9 +123,7 @@ app.put('/connect', ({ body }, res) => {
       // User has already registered, no need to add account info
       if (!memberData) return { accounts: [], transactions: [] }
 
-      // Associate new institution & token with the current user
-      //memberData.inst_ids.push(inst_type)
-      //memberData.tokens.push(accountData.access_token)
+      console.log('insert access token into userdata table')
 
       return knex('userdata')
         .insert({
@@ -147,7 +131,7 @@ app.put('/connect', ({ body }, res) => {
           inst_id: inst_type,
           token: memberData.access_token
         })
-        .then(_ => formatResponse(memberData))
+        .then(_ => formatResponse(memberData, inst_name))
     })
     .then(formattedData => {
       console.log('\n\nFormatted Data:')
@@ -164,34 +148,57 @@ app.post('/connect/get', ({ body }, res) => {
   console.log('POST /connect/get')
   const username = body.username
 
-  // Checking if the current user has any previously registered accounts
-  knex('users')
-    .select('tokens')
-    .where('username', username)
-    .then(res => {
+  // Get institution names for current user's information
+  knex('institutions')
+    .select('inst_name')
+    .innerJoin('userdata', function() {
+      this.on('userdata.inst_id', '=', 'institutions.inst_id')
+    })
+    .where('userdata.username', username)
+    .then(instList => {
+      if (!instList.length) return []
 
-      const tokens = res[0].tokens
-      let transactions = [], accounts = []
+      return instList.map(inst => inst.inst_name)
+    })
+    .then(inst_names => {
+      // Checking if the current user has any previously registered accounts
+      return knex('userdata')
+        .select('token')
+        .where('username', username)
+        .then(tokenList => {
 
-      // If no registered accounts, return nothing
-      if (!tokens.length) return { transactions: [], accounts: [] }
+          const tokens = tokenList.map(item => item.token)
 
-      // Registered accounts found, return account & transaction information
-      // for all registered accounts
-      return Promise.all(tokens.map(token => {
-        return getMemberData(token)
-      }))
-        // Filter out irrelevant information
-        .then(responses => {
-          return responses.map(formatResponse)
+          // If no registered accounts, return nothing
+          if (!tokens.length) return { transactions: [], accounts: [] }
+
+          // Registered accounts found, return account & transaction information
+          // for all registered accounts
+          return Promise.all(tokens.map(token => {
+            return getMemberData(token)
+          }))
+            // Filter out irrelevant information
+            .then(responses => {
+              //console.log(JSON.stringify(responses, null, 2))
+              //console.log(`responses map: inst_name: ${inst_name}`)
+              return responses.map((response, index) => {
+                return formatResponse(response, inst_names[index])
+              })
+            })
+            // Build a new object with the formatted information
+            .then(responses => {
+                const formattedResponses = responses.reduce((obj, data) => {
+                  obj.accounts = [...obj.accounts, ...data.accounts]
+                  obj.transactions = [...obj.transactions, ...data.transactions]
+                  return obj
+                }, { transactions: [], accounts: [] })
+
+                formattedResponses.inst_names = inst_names
+
+                return formattedResponses
+            })
+
         })
-        // Build a new object with the formatted information
-        .then(responses => responses.reduce((obj, data) => {
-          obj.accounts = [...obj.accounts, ...data.accounts]
-          obj.transactions = [...obj.transactions, ...data.transactions]
-          return obj
-        }, { transactions, accounts }))
-
     })
     .then(result => {
       console.log('\n\nPre-existing user account information:')
@@ -199,13 +206,15 @@ app.post('/connect/get', ({ body }, res) => {
       res.json(result)
     })
 
+
+
 })
 
 // Need a route to handle access token deletion
 
 // API Testing for account transactions
-// const access_token = '18e05de266ef2c0436328e74634ddf91c3aa46f5e7f5ae9dd8a92a2ae4f9ef5c069ed155bfdbecc5ad0fa732b7be52cb8c38afb6a63e7eaee884abdf6234af39f8f460a0d96f46c5efa3e5f437ea8eb0'
-// //const access_token = 'test_chase'
+//const access_token = '18e05de266ef2c0436328e74634ddf91c3aa46f5e7f5ae9dd8a92a2ae4f9ef5c069ed155bfdbecc5ad0fa732b7be52cb8c38afb6a63e7eaee884abdf6234af39f8f460a0d96f46c5efa3e5f437ea8eb0'
+// const access_token = 'test_chase'
 // plaidClient.getConnectUser(access_token, {}, (err, response) => {
 //   if (err !== null) {
 //     console.log(err)
@@ -214,9 +223,9 @@ app.post('/connect/get', ({ body }, res) => {
 //   else {
 //     // Accounts: response.accounts, Transactions: response.transactions
 //     console.log('Auth user account details:')
-//     const temp = formatResponse(response)
-//     console.log(JSON.stringify(temp.accounts, null, 2))
-//     //console.log(JSON.stringify(response, null, 2))
+//     console.log(JSON.stringify(response.accounts, null, 2))
+//     //const temp = formatResponse(response)
+//     //console.log(JSON.stringify(temp.accounts, null, 2))
 //   }
 // })
 
@@ -271,6 +280,17 @@ console.log(decrypted)**/
 //     console.log(instIds)
 //   })
 
+// Knex testing
+// knex('institutions')
+//   .select('inst_name')
+//   .innerJoin('userdata', function() {
+//     this.on('userdata.inst_id', '=', 'institutions.inst_id')
+//   })
+//   .where('userdata.username', 'test1')
+//   .then(inst_names => {
+//     console.log(inst_names)
+//   })
+
 // Asynchronously fetch a series of account details for a collection of tokens
 function getMemberData(token) {
   return new Promise((resolve, reject) => {
@@ -282,13 +302,15 @@ function getMemberData(token) {
 }
 
 // Format account objects with relevant information
-function formatAccounts(accounts) {
+function formatAccounts(accounts, inst_name) {
   return accounts.map(account => {
     return {
       balance: account.balance.current,
+      inst_name,
       name: account.meta.name,
       number: account.meta.number,
-      type: account.type
+      type: account.type,
+
     }
   })
 }
@@ -307,22 +329,11 @@ function formatTransactions(transactions) {
     })
 }
 
-// Replace institution type with actual institution name
-function getInstitutionName(account) {
-  /**
-  request('https://tartan.plaid.com/institutions/all/bofa', { json: true }, (err, res, body) => {
-    if (err) return null
-    else return body.type
-  })**/
-  return 'Temp'
-}
-
 // Format response objects with relevant information
-function formatResponse(response) {
+function formatResponse(response, inst_name) {
   return {
-    accounts: formatAccounts(response.accounts),
-    transactions: formatTransactions(response.transactions),
-    inst_name: getInstitutionName(response.accounts[0].institution_type)
+    accounts: formatAccounts(response.accounts, inst_name),
+    transactions: formatTransactions(response.transactions)
   }
 }
 

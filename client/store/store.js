@@ -4,8 +4,9 @@ const reducer = require('../reducers/reducer.js')
 
 const initialState = {
   accounts: [],
-  transactions: [],
+  institutions: [],
   loadAccounts: false,
+  transactions: [],
   users: [],
   username: 'User',
   view: 'landing'

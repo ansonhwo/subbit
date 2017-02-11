@@ -60,7 +60,7 @@ module.exports = {
 const React = require('react');
 const { connect } = require('react-redux');
 
-const Accounts = ({ accounts }) => {
+const Accounts = ({ accounts, institutions }) => {
   return React.createElement(
     'div',
     null,
@@ -69,19 +69,35 @@ const Accounts = ({ accounts }) => {
       null,
       'Accounts'
     ),
-    accounts.length ? accounts.map((account, i) => {
+    institutions.length ? institutions.map((inst, i) => {
+      // For every institution, render accounts that match that institution
       return React.createElement(
         'div',
-        { key: i, className: 'ui raised segment' },
+        { key: inst + i, className: 'ui container' },
         React.createElement(
           'p',
           null,
-          React.createElement('i', { className: (account.type === 'credit' ? "payment" : "inbox") + " icon" }),
-          ' ',
-          account.name,
-          ' ',
-          account.balance
-        )
+          React.createElement(
+            'strong',
+            null,
+            inst
+          )
+        ),
+        accounts.filter(account => account.inst_name === inst).map((account, j) => {
+          return React.createElement(
+            'div',
+            { key: account + j, className: 'ui raised segment' },
+            React.createElement(
+              'p',
+              null,
+              React.createElement('i', { className: (account.type === 'credit' ? "payment" : "inbox") + " icon" }),
+              ' ',
+              account.name,
+              ' ',
+              account.balance
+            )
+          );
+        })
       );
     }) : null
   );
@@ -89,7 +105,8 @@ const Accounts = ({ accounts }) => {
 
 const mapProps = state => {
   return {
-    accounts: state.accounts
+    accounts: state.accounts,
+    institutions: state.institutions
   };
 };
 
@@ -380,7 +397,8 @@ const reducer = (state, action) => {
       console.log(action.memberData);
       return Object.assign({}, state, {
         accounts: action.memberData.accounts,
-        transactions: action.memberData.transactions
+        transactions: action.memberData.transactions,
+        institutions: action.memberData.inst_names
       });
     case 'GET_USERS':
       console.log('Populating users list');
@@ -401,8 +419,9 @@ const reducer = require('../reducers/reducer.js');
 
 const initialState = {
   accounts: [],
-  transactions: [],
+  institutions: [],
   loadAccounts: false,
+  transactions: [],
   users: [],
   username: 'User',
   view: 'landing'
