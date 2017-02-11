@@ -15,8 +15,6 @@ body {
 #app {
   width: 100%;
   height: 100%;
-  background-color: #596eb8;
-  color: #fff;
 }
 
 #landing {
@@ -26,6 +24,7 @@ body {
   height: 100vh;
   background-image: url('images/accounting.jpeg');
   background-size: cover;
+  color: #fff;
 }
 
 #landing .overlay {
@@ -75,6 +74,7 @@ body {
   border-radius: 10px;
   background-color: #4a60ae;
   text-align: center;
+  color: #fff;
 }
 
 #login .header {

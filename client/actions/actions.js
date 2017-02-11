@@ -1,3 +1,7 @@
+const addMemberData = (memberData) => {
+  return { type: 'ADD_MEMBERDATA', memberData }
+}
+
 const changeUser = (username) => {
   return { type: 'CHANGE_USER', username }
 }
@@ -40,13 +44,13 @@ const fetchAccounts = (username) => (dispatch) => {
   fetch('/connect/get', options)
     .then(res => res.json())
     .then(res => {
-      console.log(res)
-      if (res.length) dispatch(getMemberData(res))
+      dispatch(getMemberData(res))
     })
     .catch(err => console.error(err))
 }
 
 module.exports = {
+  addMemberData,
   changeUser,
   changeView,
   fetchAccounts,

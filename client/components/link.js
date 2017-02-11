@@ -3,9 +3,8 @@ const { connect } = require('react-redux')
 
 const Accounts = require('./accounts.js')
 const store = require('../store/store.js')
-const { linkAccount, linkDone } = require('../actions/actions.js')
+const { linkAccount, linkDone, addMemberData } = require('../actions/actions.js')
 
-// Should move accounts.length display to another component
 const Link = ({ addAccount }) => {
   return (
     <div id="link" className="ui container">
@@ -31,20 +30,25 @@ const mapDispatch = dispatch => {
             headers: {
               'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ token, institution: metadata.institution.type, username })
+            body: JSON.stringify({
+              token,
+              inst_name: metadata.institution.name,
+              inst_type: metadata.institution.type,
+              username
+            })
           }
           // Send fetch request to PUT /accounts
           // Request should add a new account token to the database
           console.log('Fetch to PUT /connect')
           fetch('/connect', options)
+            .then(res => res.json())
             .then(res => {
-              console.log('\tParsing response...')
-              res.json()
+              dispatch(linkDone())
+              dispatch(addMemberData(res))
             })
             .then(res => {
-              console.log(res)
-              console.log('\tSuccessfully linked an account!')
-              dispatch(linkDone())
+              const accounts = store.getState().accounts
+              console.log(accounts)
             })
             .catch(err => console.error(err))
         },

@@ -1,4 +1,8 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+const addMemberData = memberData => {
+  return { type: 'ADD_MEMBERDATA', memberData };
+};
+
 const changeUser = username => {
   return { type: 'CHANGE_USER', username };
 };
@@ -36,12 +40,12 @@ const fetchAccounts = username => dispatch => {
     body: JSON.stringify({ username })
   };
   fetch('/connect/get', options).then(res => res.json()).then(res => {
-    console.log(res);
-    if (res.length) dispatch(getMemberData(res));
+    dispatch(getMemberData(res));
   }).catch(err => console.error(err));
 };
 
 module.exports = {
+  addMemberData,
   changeUser,
   changeView,
   fetchAccounts,
@@ -65,10 +69,10 @@ const Accounts = ({ accounts }) => {
       null,
       'Accounts'
     ),
-    accounts.length ? accounts.map(account => {
+    accounts.length ? accounts.map((account, i) => {
       return React.createElement(
         'div',
-        { className: 'ui raised segment' },
+        { key: i, className: 'ui raised segment' },
         React.createElement(
           'p',
           null,
@@ -155,9 +159,8 @@ const { connect } = require('react-redux');
 
 const Accounts = require('./accounts.js');
 const store = require('../store/store.js');
-const { linkAccount, linkDone } = require('../actions/actions.js');
+const { linkAccount, linkDone, addMemberData } = require('../actions/actions.js');
 
-// Should move accounts.length display to another component
 const Link = ({ addAccount }) => {
   return React.createElement(
     'div',
@@ -187,18 +190,22 @@ const mapDispatch = dispatch => {
             headers: {
               'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ token, institution: metadata.institution.type, username })
+            body: JSON.stringify({
+              token,
+              inst_name: metadata.institution.name,
+              inst_type: metadata.institution.type,
+              username
+            })
           };
           // Send fetch request to PUT /accounts
           // Request should add a new account token to the database
           console.log('Fetch to PUT /connect');
-          fetch('/connect', options).then(res => {
-            console.log('\tParsing response...');
-            res.json();
-          }).then(res => {
-            console.log(res);
-            console.log('\tSuccessfully linked an account!');
+          fetch('/connect', options).then(res => res.json()).then(res => {
             dispatch(linkDone());
+            dispatch(addMemberData(res));
+          }).then(res => {
+            const accounts = store.getState().accounts;
+            console.log(accounts);
           }).catch(err => console.error(err));
         },
         onLoad: () => {
@@ -350,8 +357,13 @@ const reducer = (state, action) => {
     case 'ADD_DONE':
       console.log('Done adding an account');
       return Object.assign({}, state, {
-        accounts: [...state.accounts, ...action.accounts],
         loadAccounts: false
+      });
+    case 'ADD_MEMBERDATA':
+      console.log('Appending member data');
+      return Object.assign({}, state, {
+        accounts: [...state.accounts, ...action.memberData.accounts],
+        transactions: [...state.transactions, ...action.memberData.transactions]
       });
     case 'CHANGE_USER':
       console.log(`Changing active user to ${action.username}`);
@@ -364,11 +376,11 @@ const reducer = (state, action) => {
         view: action.view
       });
     case 'GET_MEMBERDATA':
-      console.log('Member data update');
+      console.log('Getting member data');
       console.log(action.memberData);
       return Object.assign({}, state, {
-        accounts: memberData.accounts,
-        transactions: memberData.transactions
+        accounts: action.memberData.accounts,
+        transactions: action.memberData.transactions
       });
     case 'GET_USERS':
       console.log('Populating users list');

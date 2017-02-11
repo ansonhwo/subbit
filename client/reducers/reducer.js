@@ -8,8 +8,13 @@ const reducer = (state, action) => {
     case 'ADD_DONE':
       console.log('Done adding an account')
       return Object.assign({}, state, {
-        accounts: [...state.accounts, ...action.accounts],
         loadAccounts: false
+      })
+    case 'ADD_MEMBERDATA':
+      console.log('Appending member data')
+      return Object.assign({}, state, {
+        accounts: [...state.accounts, ...action.memberData.accounts],
+        transactions: [...state.transactions, ...action.memberData.transactions]
       })
     case 'CHANGE_USER':
       console.log(`Changing active user to ${action.username}`)
@@ -22,11 +27,11 @@ const reducer = (state, action) => {
         view: action.view
       })
     case 'GET_MEMBERDATA':
-      console.log('Member data update')
+      console.log('Getting member data')
       console.log(action.memberData)
       return Object.assign({}, state, {
-        accounts: memberData.accounts,
-        transactions: memberData.transactions
+        accounts: action.memberData.accounts,
+        transactions: action.memberData.transactions
       })
     case 'GET_USERS':
       console.log('Populating users list')

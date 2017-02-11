@@ -8,9 +8,9 @@ const Accounts = ({ accounts }) => {
       {
         accounts.length
           ? (
-            accounts.map(account => {
+            accounts.map((account, i) => {
               return (
-                <div className="ui raised segment">
+                <div key={ i } className="ui raised segment">
                   <p><i className={ ( account.type === 'credit' ? "payment" : "inbox") + " icon" }></i> { account.name } { account.balance }</p>
                 </div>
               )
