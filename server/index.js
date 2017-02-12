@@ -109,7 +109,6 @@ app.post('/connect', ({ body }, res) => {
           token: encrypt_token
         })
         .then(_ => {
-          console.log(JSON.stringify(memberData, null, 2))
           const formattedData = formatResponse(memberData, inst_name)
           formattedData.inst_name = inst_name
           return formattedData
@@ -158,7 +157,6 @@ app.post('/connect/get', ({ body }, res) => {
           }))
             // Filter out irrelevant information
             .then(responses => {
-              console.log(JSON.stringify(responses, null, 2))
               return responses.map((response, index) => {
                 return formatResponse(response, inst_names[index])
               })
