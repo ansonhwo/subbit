@@ -9,8 +9,10 @@
     "migrate:make": "knex migrate:make",
     "migrate": "knex migrate:latest",
     "rollback": "knex migrate:rollback",
-    "start": "PLAID_CLIENT_ID=5895125cbdc6a41dfd904590 PLAID_SECRET=798c97303f8c1ffdb8f625c6d1626c CRYPTR_SECRET=w3SylGsNeyAazMLubs2BGu0aq7EZhT8A node server/index.js",
-    "watch": "PLAID_CLIENT_ID=5895125cbdc6a41dfd904590 PLAID_SECRET=798c97303f8c1ffdb8f625c6d1626c CRYPTR_SECRET=w3SylGsNeyAazMLubs2BGu0aq7EZhT8A nodemon server/index.js"
+    "seed:make": "knex seed:make",
+    "seed:run": "knex seed:run",
+    "start": "node server/index.js",
+    "watch": "nodemon server/index.js"
   },
   "dependencies": {
     "body-parser": "^1.16.0",
@@ -31,6 +33,9 @@
     "browserify": "^14.0.0",
     "nodemon": "^1.11.0",
     "watchify": "^3.9.0"
+  },
+  "engines": {
+    "node": "6.9.4"
   },
   "repository": {
     "type": "git",

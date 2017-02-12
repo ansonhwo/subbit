@@ -1,19 +1,5 @@
 'use strict'
 
-/**
-client_id: 5895125cbdc6a41dfd904590
-public_key: a1430f4f27921e4c6bdf5f37edfcfa
-secret: 798c97303f8c1ffdb8f625c6d1626c
-connect user: 18e05de266ef2c0436328e74634ddf91c3aa46f5e7f5ae9dd8a92a2ae4f9ef5c069ed155bfdbecc5ad0fa732b7be52cb8c38afb6a63e7eaee884abdf6234af39f8f460a0d96f46c5efa3e5f437ea8eb0
-
-test client: test_id
-test secret: test_secret
-test access: test_chase, test_wells, test_citi, etc.
-
-access token encryption secret: w3SylGsNeyAazMLubs2BGu0aq7EZhT8A
-
-**/
-
 const express = require('express')
 const bodyParser = require('body-parser')
 const plaid = require('plaid')

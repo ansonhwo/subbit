@@ -1,12 +1,10 @@
 const reducer = (state, action) => {
   switch (action.type) {
     case 'ADD_ACCOUNTS':
-      console.log('adding accounts')
       return Object.assign({}, state, {
         loadAccounts: true
       })
     case 'ADD_DONE':
-      console.log('done loading accounts')
       return Object.assign({}, state, {
         loadAccounts: false
       })
