@@ -18,17 +18,26 @@ const Login = ({ users, username, changeUser }) => {
       }
       <div className="ui fluid segment">
         <p className="header">Login</p>
-        <div className="ui simple selection dropdown">
-          <div className="text">{ username }</div>
-          <i className="dropdown icon"></i>
-          <div className="menu">
-            {
-              users.map((user, i) => {
-                return <div key={ i } className="item" onClick={ changeUser }>{ user }</div>
-              })
-            }
-          </div>
-        </div>
+        {
+          username !== 'User'
+            ? (
+              <p className="welcome">{ "Welcome back, " + username }</p>
+            )
+            : (
+              <div className="ui simple selection dropdown">
+                <div className="text">{ username }</div>
+                <i className="dropdown icon"></i>
+                <div className="menu">
+                  {
+                    users.map((user, i) => {
+                      return <div key={ i } className="item" onClick={ changeUser }>{ user }</div>
+                    })
+                  }
+                </div>
+              </div>
+            )
+        }
+
       </div>
     </div>
   )

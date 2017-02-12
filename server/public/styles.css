@@ -79,6 +79,11 @@ body {
   font-size: 34pt;
 }
 
+#login .welcome {
+  font-weight: 300;
+  font-size: 20pt;
+}
+
 #login .dropdown {
   font-size: 18pt;
 }
