@@ -173,8 +173,6 @@ app.post('/connect/get', ({ body }, res) => {
         })
     })
     .then(result => {
-      console.log('\n\nPre-existing user account information:')
-      console.log(result)
       res.json(result)
     })
 
