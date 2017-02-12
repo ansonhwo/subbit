@@ -27,6 +27,9 @@ const cryptr = new Cryptr(CRYPTR_SECRET)
 app.use(express.static(__dirname + '/public'))
 app.use(bodyParser.json())
 
+// Exporting server config for testing
+module.exports = app
+
 // Get a list of all the users
 app.get('/users', (req, res) => {
 
@@ -36,7 +39,7 @@ app.get('/users', (req, res) => {
       const usernames = users.map(user => {
         return user.username
       })
-      res.json(usernames)
+      res.status(200).json(usernames)
     })
     .catch(err => res.sendStatus(404))
 
@@ -93,7 +96,7 @@ app.put('/connect', ({ body }, res) => {
     })
     .then(memberData => {
       // User has already registered, no need to add account info
-      if (!memberData) return { accounts: [], transactions: [] }
+      if (!memberData) return { accounts: [], transactions: [], inst_name: null }
 
       // Encrypt access token
       const encrypt_token = cryptr.encrypt(memberData.access_token)
@@ -105,12 +108,13 @@ app.put('/connect', ({ body }, res) => {
           inst_id: inst_type,
           token: encrypt_token
         })
-        .then(_ => formatResponse(memberData, inst_name))
+        .then(_ => {
+          const formattedData = formatResponse(memberData, inst_name)
+          formattedData.inst_name = inst_name
+          return formattedData
+        })
     })
-    .then(formattedData => {
-      formattedData.inst_name = inst_name
-      res.status(201).json(formattedData)
-    })
+    .then(formattedData => res.status(201).json(formattedData))
     .catch(err => res.sendStatus(404))
 
 })
