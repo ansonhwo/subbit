@@ -12,7 +12,7 @@ const Accounts = ({ accounts, institutions }) => {
               // For every institution, render accounts that match that institution
               return (
                 <div key={ inst+i } className="ui container institution">
-                  <p className="inst_name"><i>{ inst }</i></p>
+                  <p className="inst-name"><i>{ inst }</i></p>
                   {
                     accounts.filter(account => account.inst_name === inst)
                     .map((account, j) => {

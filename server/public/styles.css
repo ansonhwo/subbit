@@ -3,6 +3,10 @@
   font-weight: 400;
 }
 
+html, body {
+  height: 100%;
+}
+
 body {
   margin: 0;
 }
@@ -13,8 +17,7 @@ body {
 }
 
 #app {
-  width: 100%;
-  height: 100%;
+  background: #0c457d;
 }
 
 #landing {
@@ -63,6 +66,16 @@ body {
   font-size: 14pt;
 }
 
+#login .fill {
+  width: 100vw;
+  height: 100vh;
+  color: rgba(0,0,0,0);
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
 #login .segment {
   position: absolute;
   top: 50%;
@@ -72,9 +85,7 @@ body {
   padding: 40px;
   width: 600px;
   border-radius: 10px;
-  background-color: #4a60ae;
   text-align: center;
-  color: #fff;
 }
 
 #login .header {
@@ -95,6 +106,11 @@ body {
   min-width: 600px;
 }
 
+#accounts .header,
+#accounts .institution .inst-name {
+  color: #fff;
+}
+
 #accounts .header {
   margin-bottom: 5px;
   font-size: 28pt;
@@ -104,7 +120,7 @@ body {
   margin-bottom: 15px;
 }
 
-#accounts .institution .inst_name {
+#accounts .institution .inst-name {
   margin-bottom: 10px;
   font-size: 20pt;
   font-weight: 300;
