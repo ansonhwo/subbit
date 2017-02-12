@@ -16,7 +16,6 @@ const Login = ({ users, username, changeUser }) => {
           )
           : null
       }
-      <div className="fill">.</div>
       <div className="ui fluid segment">
         <p className="header">Login</p>
         <div className="ui simple selection dropdown">

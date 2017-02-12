@@ -5,13 +5,24 @@ const Accounts = require('./accounts.js')
 const store = require('../store/store.js')
 const { linkAccount, linkDone, addMemberData } = require('../actions/actions.js')
 
-const Link = ({ addAccount }) => {
+const Link = ({ addAccount, loadAccounts }) => {
   return (
     <div id="link" className="ui container">
-      <Accounts />
+      <p className="header">Accounts</p>
+      {
+        !loadAccounts
+          ? <Accounts />
+          : <div><i className="notched circle loading large icon"></i></div>
+      }
       <button className="ui blue button" onClick={ addAccount }>Link your account</button>
     </div>
   )
+}
+
+const mapProps = state => {
+  return {
+    loadAccounts: state.loadAccounts
+  }
 }
 
 const mapDispatch = dispatch => {
@@ -37,22 +48,17 @@ const mapDispatch = dispatch => {
               username
             })
           }
+
+          dispatch(linkAccount())
           // Send fetch request to PUT /accounts
           // Request should add a new account token to the database
           fetch('/connect', options)
             .then(res => res.json())
             .then(res => {
-              dispatch(linkDone())
               dispatch(addMemberData(res))
+              dispatch(linkDone())
             })
             .catch(err => console.error(err))
-        },
-        onLoad: () => {
-          dispatch(linkAccount())
-        },
-        onExit: (error, metadata) => {
-          if (error !== null) console.error('Error when retrieving accounts')
-          else console.log('Plaid link exit')
         }
       })
       linkHandler.open()
@@ -60,4 +66,4 @@ const mapDispatch = dispatch => {
   }
 }
 
-module.exports = connect(null, mapDispatch)(Link)
+module.exports = connect(mapProps, mapDispatch)(Link)

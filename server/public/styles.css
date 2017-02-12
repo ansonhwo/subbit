@@ -16,10 +16,6 @@ body {
   letter-spacing: 3px;
 }
 
-#app {
-  background: #0c457d;
-}
-
 #landing {
   z-index: 1;
   position: relative;
@@ -66,16 +62,6 @@ body {
   font-size: 14pt;
 }
 
-#login .fill {
-  width: 100vw;
-  height: 100vh;
-  color: rgba(0,0,0,0);
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-}
-
 #login .segment {
   position: absolute;
   top: 50%;
@@ -102,18 +88,26 @@ body {
   text-align: center;
 }
 
+#link .header {
+  margin-bottom: 5px;
+  font-size: 28pt;
+}
+
+#link .loading {
+  margin-bottom: 15px;
+}
+
+#link button {
+  margin-bottom: 15px;
+}
+
 #accounts {
   min-width: 600px;
 }
 
-#accounts .header,
-#accounts .institution .inst-name {
-  color: #fff;
-}
-
-#accounts .header {
-  margin-bottom: 5px;
-  font-size: 28pt;
+#accounts .none {
+  font-size: 16pt;
+  margin-bottom: 15px;
 }
 
 #accounts .institution {
@@ -137,8 +131,4 @@ body {
 
 #accounts .institution > .account .balance {
   float: right;
-}
-
-#link button {
-  margin-bottom: 15px;
 }

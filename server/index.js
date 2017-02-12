@@ -10,12 +10,14 @@ test client: test_id
 test secret: test_secret
 test access: test_chase, test_wells, test_citi, etc.
 
+access token encryption secret: w3SylGsNeyAazMLubs2BGu0aq7EZhT8A
+
 **/
 
 const express = require('express')
 const bodyParser = require('body-parser')
 const plaid = require('plaid')
-//const Cryptr = require('cryptr')
+const Cryptr = require('cryptr')
 const knex = require('knex')({
   client: 'postgresql',
   connection: {
@@ -26,7 +28,7 @@ const knex = require('knex')({
 const app = express()
 
 const APP_PORT = process.env.APP_PORT || 9999
-const { PLAID_CLIENT_ID, PLAID_SECRET } = process.env
+const { PLAID_CLIENT_ID, PLAID_SECRET, CRYPTR_SECRET } = process.env
 
 const plaidClient = new plaid.Client(
   PLAID_CLIENT_ID,
@@ -34,7 +36,7 @@ const plaidClient = new plaid.Client(
   plaid.environments.tartan
 )
 
-//const cryptr = new Cryptr(PLAID_SECRET)
+const cryptr = new Cryptr(CRYPTR_SECRET)
 
 app.use(express.static(__dirname + '/public'))
 app.use(bodyParser.json())
@@ -107,12 +109,15 @@ app.put('/connect', ({ body }, res) => {
       // User has already registered, no need to add account info
       if (!memberData) return { accounts: [], transactions: [] }
 
+      // Encrypt access token
+      const encrypt_token = cryptr.encrypt(memberData.access_token)
+
       // Insert access token into the database
       return knex('userdata')
         .insert({
           username,
           inst_id: inst_type,
-          token: memberData.access_token
+          token: encrypt_token
         })
         .then(_ => formatResponse(memberData, inst_name))
     })
@@ -142,6 +147,8 @@ app.post('/connect/get', ({ body }, res) => {
       return instList.map(inst => inst.inst_name)
     })
     .then(inst_names => {
+      if (!inst_names.length) return { transactions: [], accounts: [], inst_names: [] }
+
       // Checking if the current user has any previously registered accounts
       return knex('userdata')
         .select('token')
@@ -151,12 +158,12 @@ app.post('/connect/get', ({ body }, res) => {
           const tokens = tokenList.map(item => item.token)
 
           // If no registered accounts, return nothing
-          if (!tokens.length) return { transactions: [], accounts: [] }
+          if (!tokens.length) return { transactions: [], accounts: [], inst_names: [] }
 
           // Registered accounts found, return account & transaction information
           // for all registered accounts
           return Promise.all(tokens.map(token => {
-            return getMemberData(token)
+            return getMemberData(cryptr.decrypt(token))
           }))
             // Filter out irrelevant information
             .then(responses => {
@@ -206,7 +213,6 @@ function formatAccounts(accounts, inst_name) {
       name: account.meta.name,
       number: account.meta.number,
       type: account.type,
-
     }
   })
 }
