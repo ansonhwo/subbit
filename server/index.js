@@ -46,7 +46,7 @@ app.get('/users', (req, res) => {
 })
 
 // Add new account credentials for a user
-app.put('/connect', ({ body }, res) => {
+app.post('/connect', ({ body }, res) => {
 
   const { token, inst_name, inst_type, username } = body
 
@@ -177,7 +177,7 @@ app.post('/connect/get', ({ body }, res) => {
         })
     })
     .then(result => {
-      res.json(result)
+      res.status(201).json(result)
     })
 
 })

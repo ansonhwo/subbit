@@ -37,7 +37,7 @@ const mapDispatch = dispatch => {
         key: 'a1430f4f27921e4c6bdf5f37edfcfa',
         onSuccess: (token, metadata) => {
           let options = {
-            method: 'PUT',
+            method: 'POST',
             headers: {
               'Content-Type': 'application/json'
             },
@@ -50,7 +50,7 @@ const mapDispatch = dispatch => {
           }
 
           dispatch(linkAccount())
-          // Send fetch request to PUT /accounts
+          // Send fetch request to POST /accounts
           // Request should add a new account token to the database
           fetch('/connect', options)
             .then(res => res.json())
