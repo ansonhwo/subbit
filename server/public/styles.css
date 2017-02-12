@@ -90,3 +90,39 @@ body {
   font-size: 20pt;
   text-align: center;
 }
+
+#accounts {
+  min-width: 600px;
+}
+
+#accounts .header {
+  margin-bottom: 5px;
+  font-size: 28pt;
+}
+
+#accounts .institution {
+  margin-bottom: 15px;
+}
+
+#accounts .institution .inst_name {
+  margin-bottom: 10px;
+  font-size: 20pt;
+  font-weight: 300;
+}
+
+#accounts .institution > .account {
+  padding-top: 15px;
+  padding-bottom: 10px;
+  padding-left: 10px;
+  padding-right: 10px;
+  font-size: 16pt;
+  font-weight: 100;
+}
+
+#accounts .institution > .account .balance {
+  float: right;
+}
+
+#link button {
+  margin-bottom: 15px;
+}

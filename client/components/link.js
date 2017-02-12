@@ -39,16 +39,11 @@ const mapDispatch = dispatch => {
           }
           // Send fetch request to PUT /accounts
           // Request should add a new account token to the database
-          console.log('Fetch to PUT /connect')
           fetch('/connect', options)
             .then(res => res.json())
             .then(res => {
               dispatch(linkDone())
               dispatch(addMemberData(res))
-            })
-            .then(res => {
-              const accounts = store.getState().accounts
-              console.log(accounts)
             })
             .catch(err => console.error(err))
         },
