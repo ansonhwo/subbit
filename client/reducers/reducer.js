@@ -32,6 +32,19 @@ const reducer = (state, action) => {
       return Object.assign({}, state, {
         users: action.users
       })
+    case 'SORT_TRANSACTIONS':
+      if (!action.doneSorting) {
+        return Object.assign({}, state, {
+          doneSorting: action.doneSorting
+        })
+      }
+      else {
+        return Object.assign({}, state, {
+          doneSorting: action.doneSorting,
+          monthsByYear: action.monthsByYear,
+          transactionsByMonth: action.transactionsByMonth
+        })
+      }
     default:
       return state
   }

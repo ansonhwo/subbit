@@ -4,6 +4,7 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const plaid = require('plaid')
 const Cryptr = require('cryptr')
+const moment = require('moment')
 const knex = require('knex')({
   client: 'postgresql',
   connection: {
@@ -182,6 +183,57 @@ app.post('/connect/get', ({ body }, res) => {
 
 })
 
+// Sandbox Testing
+// const access_token = '18e05de266ef2c0436328e74634ddf91c3aa46f5e7f5ae9dd8a92a2ae4f9ef5c069ed155bfdbecc5ad0fa732b7be52cb8c38afb6a63e7eaee884abdf6234af39f8f460a0d96f46c5efa3e5f437ea8eb0'
+// //const access_token = 'test_chase'
+//
+// // When grabbing transactions, always need to return
+// // # of months desired + 1
+// // e.g. Four months of history = Five months of transactions
+// plaidClient.getConnectUser(access_token, { gte: '150 days ago'}, (err, response) => {
+//   if (err) console.error(err)
+//   else {
+//     let formattedResponse = formatResponse(response)
+//     //console.log(JSON.stringify(formattedResponse.transactions, null, 2))
+//     // Filter out amounts that are < 0
+//     // Filter out ignored categories
+//     const ignore = [
+//       'Arts and Entertainment',
+//       'ATM',
+//       'Bank Fees',
+//       'Credit Card',
+//       'Deposit',
+//       'Digital Purchase',
+//       'Food and Drink',
+//       'Groceries',
+//       'Gas Station',
+//       'Government Departments and Agencies',
+//       'Payroll',
+//       'Restaurants',
+//       'Shops',
+//       'Supermarkets and Groceries',
+//       'Transfer'
+//     ]
+//
+//     // Returns a filtered list of transactions that have a valid charge and
+//     // do not fall into the list of ignored categories
+//     const parsedTransactions = formattedResponse.transactions.filter(transaction => {
+//       let valid = false
+//       // Check if the transaction is a charge, not a credit
+//       if (transaction.amount > 0) {
+//         // Check if the transaction is within the list of ignored categories
+//         let matched = transaction.category.filter(category => {
+//           return ignore.includes(category)
+//         })
+//
+//         if (!matched.length) valid = true
+//       }
+//
+//       if (valid) return true
+//     })
+//   }
+// })
+
 // Asynchronously fetch a series of account details for a collection of tokens
 function getMemberData(token) {
   return new Promise((resolve, reject) => {
@@ -213,6 +265,7 @@ function formatTransactions(transactions) {
     .map(transaction => {
       return {
         amount: transaction.amount,
+        category: transaction.category || ['Misc'],
         date: transaction.date,
         name: transaction.name
       }

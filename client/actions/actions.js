@@ -1,3 +1,5 @@
+const store = require('../store/store.js')
+
 const addMemberData = (memberData) => {
   return { type: 'ADD_MEMBERDATA', memberData }
 }
@@ -26,6 +28,14 @@ const linkDone = () => {
   return { type: 'ADD_DONE', accounts: [] }
 }
 
+const sortingTransStart = () => {
+  return { type: 'SORT_TRANSACTIONS', doneSorting: false }
+}
+
+const sortingTransEnd = (transactions, monthsByYear) => {
+  return { type: 'SORT_TRANSACTIONS', transactionsByMonth, monthsByYear, doneSorting: true }
+}
+
 const fetchUsers = () => (dispatch) => {
   fetch('/users')
     .then(res => res.json())
@@ -44,9 +54,60 @@ const fetchAccounts = (username) => (dispatch) => {
   fetch('/connect/get', options)
     .then(res => res.json())
     .then(res => {
+      dispatch(sortingTransStart())
+      console.log(JSON.stringify(res, null, 2))
       dispatch(getMemberData(res))
+      dispatch(sortTransactions(store.getState().transactions))
     })
     .catch(err => console.error(err))
+}
+
+
+// Need to sort all of the transactions in the store by date first
+const sortTransactions = (unsorted) => dispatch => {
+  const monthsByYear = []
+  const transactionsByMonth = []
+  const transactions = unsorted.slice()
+
+  // Need to sort all of the transactions in the store by date first
+  transactions = transactions.sort((a, b) => {
+    return moment(a.date, 'YYYY-MM-DD').isBefore(b.date, 'YYYY-MM-DD')
+  })
+
+  // Iterate through all of the transactions (by month)
+  // Get the index ranges of all transactions in the same month and year
+  // Return an array of arrays grouped by month and year
+  for (let start = 0; start < transactions.length; start += increment) {
+
+    let end = -1
+    let monthAndYear = moment(transactions[start].date, 'YYYY-MM-DD').format('MMMM YYYY')
+    monthsByYear.push(monthAndYear)
+
+    // Check for the next instance of a differing month and year
+    for (let check = start + 1; check < transactions.length; check++) {
+      if (moment(transactions[check].date, 'YYYY-MM-DD').format('MMMM YYYY') !== monthAndYear) {
+        end = check
+        break
+      }
+    }
+
+    if (end >= 1) {
+      transactionsByMonth.push(transactions.slice(start, end))
+      increment = end - start
+    }
+    else {
+      transactionsByMonth.push(transactions.slice(start, transactions.length))
+      start = transactions.length
+    }
+
+  }
+
+  console.log('\nDone sorting transactions')
+  console.log('transactions by month:')
+  console.log(JSON.stringify(transactionsByMonth, null, 2))
+  console.log('months by year:')
+  console.log(monthsByYear)
+  dispatch(sortingTransEnd(transactionsByMonth, monthsByYear))
 }
 
 module.exports = {
@@ -58,5 +119,8 @@ module.exports = {
   getMemberData,
   getUsers,
   linkAccount,
-  linkDone
+  linkDone,
+  sortTransactions,
+  sortingTransStart,
+  sortingTransEnd
 }
