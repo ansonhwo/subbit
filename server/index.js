@@ -184,19 +184,17 @@ app.post('/connect/get', ({ body }, res) => {
 })
 
 // Sandbox Testing
-// const access_token = '18e05de266ef2c0436328e74634ddf91c3aa46f5e7f5ae9dd8a92a2ae4f9ef5c069ed155bfdbecc5ad0fa732b7be52cb8c38afb6a63e7eaee884abdf6234af39f8f460a0d96f46c5efa3e5f437ea8eb0'
-// //const access_token = 'test_chase'
-//
-// // When grabbing transactions, always need to return
-// // # of months desired + 1
-// // e.g. Four months of history = Five months of transactions
-// plaidClient.getConnectUser(access_token, { gte: '150 days ago'}, (err, response) => {
+// //const access_token = '18e05de266ef2c0436328e74634ddf91c3aa46f5e7f5ae9dd8a92a2ae4f9ef5c069ed155bfdbecc5ad0fa732b7be52cb8c38afb6a63e7eaee884abdf6234af39f8f460a0d96f46c5efa3e5f437ea8eb0'
+// const access_token = 'test_chase'
+// //
+// // // When grabbing transactions, always need to return
+// // // # of months desired + 1
+// // // e.g. Four months of history = Five months of transactions
+// //plaidClient.getConnectUser(access_token, { gte: '150 days ago'}, (err, response) => {
+// plaidClient.getConnectUser(access_token, {}, (err, response) => {
 //   if (err) console.error(err)
 //   else {
-//     let formattedResponse = formatResponse(response)
-//     //console.log(JSON.stringify(formattedResponse.transactions, null, 2))
-//     // Filter out amounts that are < 0
-//     // Filter out ignored categories
+//     let { transactions } = formatResponse(response)
 //     const ignore = [
 //       'Arts and Entertainment',
 //       'ATM',
@@ -206,31 +204,65 @@ app.post('/connect/get', ({ body }, res) => {
 //       'Digital Purchase',
 //       'Food and Drink',
 //       'Groceries',
-//       'Gas Station',
+//       'Gas Stations',
 //       'Government Departments and Agencies',
 //       'Payroll',
 //       'Restaurants',
 //       'Shops',
 //       'Supermarkets and Groceries',
-//       'Transfer'
+//       'Transfer',
+//       'Travel'
 //     ]
 //
-//     // Returns a filtered list of transactions that have a valid charge and
-//     // do not fall into the list of ignored categories
-//     const parsedTransactions = formattedResponse.transactions.filter(transaction => {
-//       let valid = false
-//       // Check if the transaction is a charge, not a credit
-//       if (transaction.amount > 0) {
-//         // Check if the transaction is within the list of ignored categories
-//         let matched = transaction.category.filter(category => {
+//     // Sort transactions by date descending, and filter out transactions
+//     // that have a non-zero negative amount & lie within ignored categories
+//     transactions = transactions.slice()
+//       .sort((a, b) => {
+//         return moment(a.date, 'YYYY-MM-DD').diff(moment(b.date, 'YYYY-MM-DD'), 'days') >= 0 ? -1 : 1
+//       })
+//       .filter(transaction => {
+//         let check = transaction.category.filter(category => {
 //           return ignore.includes(category)
 //         })
+//         return transaction.amount >= 0 && !check.length ? true : false
+//       })
 //
-//         if (!matched.length) valid = true
+//     // Iterate through all of the transactions (by month)
+//     // Get the index ranges of all transactions in the same month and year
+//     // Return an array of arrays grouped by month and year
+//     let increment = 1
+//     const monthsByYear = []
+//     const transactionsByMonth = []
+//
+//     for (let start = 0; start < transactions.length; start += increment) {
+//
+//       let end = -1
+//       let monthAndYear = moment(transactions[start].date, 'YYYY-MM-DD').format('MMMM YYYY')
+//       monthsByYear.push(monthAndYear)
+//
+//       // Check for the next instance of a differing month and year
+//       for (let check = start + 1; check < transactions.length; check++) {
+//         if (moment(transactions[check].date, 'YYYY-MM-DD').format('MMMM YYYY') !== monthAndYear) {
+//           end = check
+//           break
+//         }
 //       }
 //
-//       if (valid) return true
-//     })
+//       if (end >= 1) {
+//         transactionsByMonth.push(transactions.slice(start, end))
+//         increment = end - start
+//       }
+//       else {
+//         transactionsByMonth.push(transactions.slice(start, transactions.length))
+//         start = transactions.length
+//       }
+//
+//     }
+//     console.log('\nDone sorting transactions')
+//     console.log('transactions by month:')
+//     console.log(JSON.stringify(transactionsByMonth, null, 2))
+//     console.log('months by year:')
+//     console.log(monthsByYear)
 //   }
 // })
 

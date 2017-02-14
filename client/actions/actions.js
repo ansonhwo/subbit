@@ -62,21 +62,47 @@ const fetchAccounts = (username) => (dispatch) => {
 }
 
 
-// Need to sort all of the transactions in the store by date first
-// todo: filter out negative transactions and transactions that fall within
-//  categories to ignore in 2017
+// Need to sort all of the transactions in the store by date descending
 const sortTransactions = (unsorted) => dispatch => {
-  const monthsByYear = []
-  const transactionsByMonth = []
-  let transactions = unsorted.slice()
 
-  transactions = transactions.sort((a, b) => {
-     return moment(a.date, 'YYYY-MM-DD').diff(moment(b.date, 'YYYY-MM-DD'), 'days') >= 0 ? -1 : 1
-  })
+  const ignore = [
+    'Arts and Entertainment',
+    'ATM',
+    'Bank Fees',
+    'Credit Card',
+    'Deposit',
+    'Digital Purchase',
+    'Food and Drink',
+    'Groceries',
+    'Gas Station',
+    'Government Departments and Agencies',
+    'Payroll',
+    'Restaurants',
+    'Shops',
+    'Supermarkets and Groceries',
+    'Transfer'
+  ]
+
+  // Sort transactions by date descending, and filter out transactions
+  // that have a non-zero negative amount & lie within ignored categories
+  const transactions = unsorted.slice()
+    .sort((a, b) => {
+      return moment(a.date, 'YYYY-MM-DD').diff(moment(b.date, 'YYYY-MM-DD'), 'days') >= 0 ? -1 : 1
+    })
+    .filter(transaction => {
+      let check = transaction.category.filter(category => {
+        return ignore.includes(category)
+      })
+      return transaction.amount >= 0 && !check.length ? true : false
+    })
 
   // Iterate through all of the transactions (by month)
   // Get the index ranges of all transactions in the same month and year
   // Return an array of arrays grouped by month and year
+  let increment = 1
+  const monthsByYear = []
+  const transactionsByMonth = []
+
   for (let start = 0; start < transactions.length; start += increment) {
 
     let end = -1
@@ -108,6 +134,7 @@ const sortTransactions = (unsorted) => dispatch => {
   console.log('months by year:')
   console.log(monthsByYear)
   dispatch(sortingTransEnd(transactionsByMonth, monthsByYear))
+
 }
 
 module.exports = {
