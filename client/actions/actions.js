@@ -63,14 +63,15 @@ const fetchAccounts = (username) => (dispatch) => {
 
 
 // Need to sort all of the transactions in the store by date first
+// todo: filter out negative transactions and transactions that fall within
+//  categories to ignore in 2017
 const sortTransactions = (unsorted) => dispatch => {
   const monthsByYear = []
   const transactionsByMonth = []
   let transactions = unsorted.slice()
 
-  // Need to sort all of the transactions in the store by date first
   transactions = transactions.sort((a, b) => {
-    return moment(a.date, 'YYYY-MM-DD').isBefore(b.date, 'YYYY-MM-DD')
+     return moment(a.date, 'YYYY-MM-DD').diff(moment(b.date, 'YYYY-MM-DD'), 'days') >= 0 ? -1 : 1
   })
 
   // Iterate through all of the transactions (by month)
