@@ -32,7 +32,7 @@ const sortingTransStart = () => {
   return { type: 'SORT_TRANSACTIONS', doneSorting: false }
 }
 
-const sortingTransEnd = (transactions, monthsByYear) => {
+const sortingTransEnd = (transactionsByMonth, monthsByYear) => {
   return { type: 'SORT_TRANSACTIONS', transactionsByMonth, monthsByYear, doneSorting: true }
 }
 
@@ -55,7 +55,6 @@ const fetchAccounts = (username) => (dispatch) => {
     .then(res => res.json())
     .then(res => {
       dispatch(sortingTransStart())
-      console.log(JSON.stringify(res, null, 2))
       dispatch(getMemberData(res))
       dispatch(sortTransactions(store.getState().transactions))
     })
@@ -67,7 +66,7 @@ const fetchAccounts = (username) => (dispatch) => {
 const sortTransactions = (unsorted) => dispatch => {
   const monthsByYear = []
   const transactionsByMonth = []
-  const transactions = unsorted.slice()
+  let transactions = unsorted.slice()
 
   // Need to sort all of the transactions in the store by date first
   transactions = transactions.sort((a, b) => {
