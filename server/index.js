@@ -183,6 +183,17 @@ app.post('/connect/get', ({ body }, res) => {
 
 })
 
+// const access_token = '18e05de266ef2c0436328e74634ddf91c3aa46f5e7f5ae9dd8a92a2ae4f9ef5c069ed155bfdbecc5ad0fa732b7be52cb8c38afb6a63e7eaee884abdf6234af39f8f460a0d96f46c5efa3e5f437ea8eb0'
+// const encrypted = cryptr.encrypt(access_token)
+//
+// knex('userdata')
+//   .insert({
+//     username: 'Kevin Lewis',
+//     inst_id: 'chase',
+//     token: encrypted
+//   })
+//   .then(res => console.log(res))
+
 // Sandbox Testing
 // //const access_token = '18e05de266ef2c0436328e74634ddf91c3aa46f5e7f5ae9dd8a92a2ae4f9ef5c069ed155bfdbecc5ad0fa732b7be52cb8c38afb6a63e7eaee884abdf6234af39f8f460a0d96f46c5efa3e5f437ea8eb0'
 // const access_token = 'test_chase'

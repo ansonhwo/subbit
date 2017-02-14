@@ -3,12 +3,11 @@ const { connect } = require('react-redux')
 
 const Accounts = require('./accounts.js')
 const store = require('../store/store.js')
-const { linkAccount, linkDone, addMemberData, sortTransactionsByMonth } = require('../actions/actions.js')
+const { linkAccount, linkDone, addMemberData, sortTransactions, sortingTransStart } = require('../actions/actions.js')
 
 const Link = ({ addAccount, loadAccounts }) => {
   return (
     <div id="link" className="ui container">
-      <p className="header">Accounts</p>
       {
         !loadAccounts
           ? <Accounts />
@@ -55,9 +54,9 @@ const mapDispatch = dispatch => {
           fetch('/connect', options)
             .then(res => res.json())
             .then(res => {
-              console.log(JSON.stringify(res, null, 2))
               dispatch(addMemberData(res))
-              // Need to sort all of the transactions by date here, then update the store
+              dispatch(sortingTransStart())
+              dispatch(sortTransactions(store.getState().transactions))
               dispatch(linkDone())
             })
             .catch(err => console.error(err))

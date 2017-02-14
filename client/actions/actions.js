@@ -1,7 +1,9 @@
-const store = require('../store/store.js')
-
 const addMemberData = (memberData) => {
   return { type: 'ADD_MEMBERDATA', memberData }
+}
+
+const changeMemberView = (memberView) => {
+  return { type: 'CHANGE_MEMBER_VIEW', memberView }
 }
 
 const changeUser = (username) => {
@@ -25,7 +27,7 @@ const linkAccount = () => {
 }
 
 const linkDone = () => {
-  return { type: 'ADD_DONE', accounts: [] }
+  return { type: 'ADD_DONE' }
 }
 
 const sortingTransStart = () => {
@@ -56,7 +58,8 @@ const fetchAccounts = (username) => (dispatch) => {
     .then(res => {
       dispatch(sortingTransStart())
       dispatch(getMemberData(res))
-      dispatch(sortTransactions(store.getState().transactions))
+      dispatch(sortTransactions(res.transactions))
+      dispatch(changeView('member'))
     })
     .catch(err => console.error(err))
 }
@@ -117,6 +120,7 @@ const sortTransactions = (unsorted) => dispatch => {
       }
     }
 
+    // If there are still more transactions, check the rest
     if (end >= 1) {
       transactionsByMonth.push(transactions.slice(start, end))
       increment = end - start
@@ -128,17 +132,13 @@ const sortTransactions = (unsorted) => dispatch => {
 
   }
 
-  console.log('\nDone sorting transactions')
-  console.log('transactions by month:')
-  console.log(JSON.stringify(transactionsByMonth, null, 2))
-  console.log('months by year:')
-  console.log(monthsByYear)
   dispatch(sortingTransEnd(transactionsByMonth, monthsByYear))
 
 }
 
 module.exports = {
   addMemberData,
+  changeMemberView,
   changeUser,
   changeView,
   fetchAccounts,

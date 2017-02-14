@@ -7,6 +7,7 @@ const initialState = {
   doneSorting: true,
   institutions: [],
   loadAccounts: false,
+  memberView: 'Accounts',
   monthsByYear: [],
   transactionsByMonth: [],
   transactions: [],

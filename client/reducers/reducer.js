@@ -14,6 +14,10 @@ const reducer = (state, action) => {
         transactions: [...state.transactions, ...action.memberData.transactions],
         institutions: [...state.institutions, action.memberData.inst_name]
       })
+    case 'CHANGE_MEMBER_VIEW':
+      return Object.assign({}, state, {
+        memberView: action.memberView
+      })
     case 'CHANGE_USER':
       return Object.assign({}, state, {
         username: action.username

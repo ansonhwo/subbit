@@ -2,17 +2,17 @@ const React = require('react')
 const { connect } = require('react-redux')
 
 const Landing = require('./landing.js')
-const Link = require('./link.js')
 const Login = require('./login.js')
+const Member = require('./member.js')
 
 const View = ({ view }) => {
   switch (view) {
     case 'landing':
       return <Landing />
-    case 'link':
-      return <Link />
     case 'login':
       return <Login />
+    case 'member':
+      return <Member />
     default:
       return null
   }

@@ -17,7 +17,7 @@ const Accounts = ({ accounts, institutions }) => {
                   .map((account, j) => {
                     return (
                       <div key={ account+j } className="ui raised segment account">
-                        <span className="name"><i className={ ( account.type === 'credit' ? "payment" : "inbox") + " icon" }></i>{ account.name }</span><span className="balance">{ account.balance }</span>
+                        <span className="name"><i className={ ( account.type === 'credit' ? "payment" : "inbox") + " icon" }></i>{ account.name } { account.number }</span><span className="balance">{ account.balance.toFixed(2) }</span>
                       </div>
                     )
                   })
@@ -27,7 +27,7 @@ const Accounts = ({ accounts, institutions }) => {
           })
         )
         : (
-          <p className="none">No accounts linked</p>
+          <p className="none">No Accounts Linked</p>
         )
     }
     </div>
