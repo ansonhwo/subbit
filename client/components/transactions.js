@@ -41,7 +41,7 @@ const Transactions = ({ monthsByYear, transactionsByMonth }) => {
                 : (
                   <div key={ i } className="ui raised inverted blue segment month">
                     <div key={ date+i } className="date">{ date }</div>
-                    <p>No reoccurring transactions found.</p>
+                    <p className="none">No reoccurring transactions found.</p>
                   </div>
                 )
             )

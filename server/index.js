@@ -4,7 +4,6 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const plaid = require('plaid')
 const Cryptr = require('cryptr')
-const moment = require('moment')
 const knex = require('knex')({
   client: 'postgresql',
   connection: {

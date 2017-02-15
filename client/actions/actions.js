@@ -1,3 +1,5 @@
+const moment = require('moment')
+
 const addMemberData = (memberData) => {
   return { type: 'ADD_MEMBERDATA', memberData }
 }

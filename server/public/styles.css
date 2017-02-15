@@ -154,3 +154,9 @@ body {
 #transactions .total {
   text-align: right;
 }
+
+#transactions .none {
+  margin-top: 15px;
+  font-size: 16pt;
+  font-weight: 300;
+}
