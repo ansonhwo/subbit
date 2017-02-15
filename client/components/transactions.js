@@ -27,7 +27,10 @@ const Transactions = ({ monthsByYear, transactionsByMonth }) => {
                           return (
                             <tr key={ j }>
                               <td>{ transaction.date }</td>
-                              <td>{ transaction.name }</td>
+                              <td>
+                                <p className="name">{ transaction.name }</p>
+                                <p className="categories"><i>{ transaction.category.join(', ') }</i></p>
+                              </td>
                               <td className="right aligned">${ transaction.amount.toFixed(2) }</td>
                             </tr>
                           )

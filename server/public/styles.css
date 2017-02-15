@@ -151,6 +151,14 @@ body {
   font-size: 14pt;
 }
 
+#transactions .name {
+  margin-bottom: 3px;
+}
+
+#transactions .categories {
+  font-size: 12pt;
+}
+
 #transactions .total {
   text-align: right;
 }
