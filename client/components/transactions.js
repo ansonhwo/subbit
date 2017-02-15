@@ -9,7 +9,7 @@ const Transactions = ({ monthsByYear, transactionsByMonth }) => {
         ? (
           monthsByYear.map((date, i) => {
             return (
-              <div key={ i } className="ui raised segment">
+              <div key={ i } className="ui raised inverted blue segment">
                 <div key={ date+i } className="date">{ date }</div>
                 <table key={ 'table'+i } className="ui celled striped selectable unstackable inverted blue table">
                   <thead key={ 'head'+i }>

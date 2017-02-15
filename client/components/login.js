@@ -16,7 +16,7 @@ const Login = ({ users, username, changeUser }) => {
           )
           : null
       }
-      <div className="ui fluid segment">
+      <div className="ui fluid inverted blue segment">
         <p className="header">Login</p>
         {
           username !== 'User'
