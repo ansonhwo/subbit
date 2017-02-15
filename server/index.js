@@ -6,10 +6,8 @@ const plaid = require('plaid')
 const Cryptr = require('cryptr')
 const knex = require('knex')({
   client: 'postgresql',
-  connection: {
-    user: 'super',
-    database: 'subbit'
-  }
+  connection: process.env.DATABASE_URL,
+  ssl: true
 })
 const app = express()
 
