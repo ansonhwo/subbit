@@ -147,9 +147,9 @@ const sortTransactions = (unsorted) => dispatch => {
     if (index === transactionsByMonth.length - 1) return []
     else {
       filtered = transactionsForTheMonth.filter(thisMonthsTransaction => {
-        // 1 week buffer
-        const dateLowerBound = -37
-        const dateUpperBound = -23
+        // 4 day buffer
+        const dateLowerBound = -34
+        const dateUpperBound = -26
 
         // Check for identical transactions in the month prior
         let match = transactionsByMonth[index + 1].filter(lastMonthsTransaction => {
