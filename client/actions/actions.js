@@ -68,22 +68,28 @@ const fetchAccounts = (username) => (dispatch) => {
 // Need to sort all of the transactions in the store by date descending
 const sortTransactions = (unsorted) => dispatch => {
 
+  // Transaction categories to ignore
   const ignore = [
     'Arts and Entertainment',
     'ATM',
     'Bank Fees',
     'Credit Card',
     'Deposit',
-    'Digital Purchase',
     'Food and Drink',
     'Groceries',
-    'Gas Station',
+    'Gas Stations',
     'Government Departments and Agencies',
+    'Interest',
     'Payroll',
     'Restaurants',
+    'Running',
     'Shops',
+    'Stadiums and Arenas',
     'Supermarkets and Groceries',
-    'Transfer'
+    'Tax',
+    'Third Party',
+    'Travel',
+    'Withdrawal'
   ]
 
   // Sort transactions by date descending, and filter out transactions
@@ -101,7 +107,7 @@ const sortTransactions = (unsorted) => dispatch => {
 
   // Iterate through all of the transactions (by month)
   // Get the index ranges of all transactions in the same month and year
-  // Return an array of arrays grouped by month and year
+  // Build an array of arrays grouped by month and year, date descending
   let increment = 1
   const monthsByYear = []
   const transactionsByMonth = []
@@ -132,7 +138,39 @@ const sortTransactions = (unsorted) => dispatch => {
 
   }
 
-  dispatch(sortingTransEnd(transactionsByMonth, monthsByYear))
+  // Map through all monthly transactions and check for reoccurrance
+  const filteredTransactions = transactionsByMonth.map((transactionsForTheMonth, index) => {
+
+    let filtered
+    if (index === transactionsByMonth.length - 1) return []
+    else {
+      filtered = transactionsForTheMonth.filter(thisMonthsTransaction => {
+        // 1 week buffer
+        const dateLowerBound = -37
+        const dateUpperBound = -23
+
+        // Check for identical transactions in the month prior
+        let match = transactionsByMonth[index + 1].filter(lastMonthsTransaction => {
+          let foundDate = moment(lastMonthsTransaction.date, 'YYYY-MM-DD').diff(thisMonthsTransaction.date, 'days')
+          let nameCheck = thisMonthsTransaction.name.split(' ').slice(0, 2).join(' ')
+
+          return (lastMonthsTransaction.name.includes(nameCheck)
+                  && foundDate >= dateLowerBound
+                  && foundDate <= dateUpperBound)
+        })
+        return match.length ? true : false
+      })
+    }
+
+    return filtered
+
+  })
+
+  // Last available transaction month has no comparisons available
+  monthsByYear.pop()
+  filteredTransactions.pop()
+
+  dispatch(sortingTransEnd(filteredTransactions, monthsByYear))
 
 }
 

@@ -17,7 +17,7 @@ const Accounts = ({ accounts, institutions }) => {
                   .map((account, j) => {
                     return (
                       <div key={ account+j } className="ui raised segment account">
-                        <span className="name"><i className={ ( account.type === 'credit' ? "payment" : "inbox") + " icon" }></i>{ account.name } { account.number }</span><span className="balance">{ account.balance.toFixed(2) }</span>
+                        <span className="name"><i className={ ( account.type === 'credit' ? "payment" : "inbox") + " icon" }></i>{ account.name } { account.number }</span><span className="balance">${ account.balance.toFixed(2) }</span>
                       </div>
                     )
                   })

@@ -137,14 +137,18 @@ body {
   font-size: 16pt;
 }
 
+#transactions .month {
+  margin-bottom: 20px;
+}
+
 #transactions .date,
 #transactions .total {
-  font-size: 20pt;
-  font-weight: 300;
+  font-size: 22pt;
+  font-weight: 100;
 }
 
 #transactions tbody {
-  font-size: 12pt;
+  font-size: 14pt;
 }
 
 #transactions .total {

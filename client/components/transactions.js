@@ -9,32 +9,41 @@ const Transactions = ({ monthsByYear, transactionsByMonth }) => {
         ? (
           monthsByYear.map((date, i) => {
             return (
-              <div key={ i } className="ui raised inverted blue segment">
-                <div key={ date+i } className="date">{ date }</div>
-                <table key={ 'table'+i } className="ui celled striped selectable unstackable inverted blue table">
-                  <thead key={ 'head'+i }>
-                    <tr>
-                      <th className="three wide">Date</th>
-                      <th className="ten wide">Name</th>
-                      <th className="three wide">Amount</th>
-                    </tr>
-                  </thead>
-                  <tbody key={ 'body'+i }>
-                  {
-                    transactionsByMonth[i].map((transaction, j) => {
-                      return (
-                        <tr key={ j }>
-                          <td>{ transaction.date }</td>
-                          <td>{ transaction.name }</td>
-                          <td className="right aligned">${ transaction.amount.toFixed(2) }</td>
+              transactionsByMonth[i].length
+                ? (
+                  <div key={ i } className="ui raised inverted blue segment month">
+                    <div key={ date+i } className="date">{ date }</div>
+                    <table key={ 'table'+i } className="ui celled striped selectable unstackable inverted blue table">
+                      <thead key={ 'head'+i }>
+                        <tr>
+                          <th className="three wide">Date</th>
+                          <th className="ten wide">Name</th>
+                          <th className="three wide">Amount</th>
                         </tr>
-                      )
-                    })
-                  }
-                  </tbody>
-                </table>
-                <div key={ total+i } className="total">Monthly Total: ${ total(transactionsByMonth[i]).toFixed(2) }</div>
-              </div>
+                      </thead>
+                      <tbody key={ 'body'+i }>
+                      {
+                        transactionsByMonth[i].map((transaction, j) => {
+                          return (
+                            <tr key={ j }>
+                              <td>{ transaction.date }</td>
+                              <td>{ transaction.name }</td>
+                              <td className="right aligned">${ transaction.amount.toFixed(2) }</td>
+                            </tr>
+                          )
+                        })
+                      }
+                      </tbody>
+                    </table>
+                    <div key={ total+i } className="total">Monthly Total: ${ total(transactionsByMonth[i]).toFixed(2) }</div>
+                  </div>
+                )
+                : (
+                  <div key={ i } className="ui raised inverted blue segment month">
+                    <div key={ date+i } className="date">{ date }</div>
+                    <p>No reoccurring transactions found.</p>
+                  </div>
+                )
             )
           })
         )
