@@ -11,7 +11,7 @@ const knex = require('knex')({
 })
 const app = express()
 
-const APP_PORT = process.env.APP_PORT || 9999
+const PORT = process.env.PORT || 9999
 const { PLAID_CLIENT_ID, PLAID_SECRET, CRYPTR_SECRET } = process.env
 
 const plaidClient = new plaid.Client(
@@ -248,4 +248,4 @@ function exchangeToken(public_token) {
   })
 }
 
-app.listen(APP_PORT, () => console.log(`Listening on ${APP_PORT}`))
+app.listen(PORT, () => console.log(`Listening on ${PORT}`))
