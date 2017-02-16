@@ -4,7 +4,7 @@ exports.up = function(knex, Promise) {
     table.increments('id').primary()
     table.string('username').notNullable()
     table.string('inst_id').notNullable()
-    table.string('token').notNullable()
+    table.string('token', 1000).notNullable()
     table.foreign('username').references('users.username')
     table.foreign('inst_id').references('institutions.inst_id')
   })

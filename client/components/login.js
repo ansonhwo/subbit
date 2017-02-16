@@ -1,6 +1,6 @@
 const React = require('react')
 const { connect } = require('react-redux')
-const { changeUser, changeView, fetchAccounts } = require('../actions/actions.js')
+const { changeUser, fetchAccounts } = require('../actions/actions.js')
 
 const Login = ({ users, username, changeUser }) => {
   return (
@@ -8,7 +8,7 @@ const Login = ({ users, username, changeUser }) => {
       {
         username !== 'User'
           ? (
-            <div className="ui positive message">
+            <div className="ui blue message">
               <span className="content">
                 <p><i className="notched circle loading icon"></i> Logging you in...</p>
               </span>
@@ -16,7 +16,7 @@ const Login = ({ users, username, changeUser }) => {
           )
           : null
       }
-      <div className="ui fluid segment">
+      <div className="ui fluid inverted blue segment">
         <p className="header">Login</p>
         {
           username !== 'User'
@@ -56,9 +56,6 @@ const mapDispatch = dispatch => {
       const user = event.target.textContent
       dispatch(changeUser(user))
       dispatch(fetchAccounts(user))
-      setTimeout(() => {
-        dispatch(changeView('link'))
-      }, 3000)
     }
   }
 }

@@ -16,6 +16,38 @@ body {
   letter-spacing: 3px;
 }
 
+#accounts {
+  min-width: 600px;
+}
+
+#accounts .none {
+  font-size: 16pt;
+  margin-bottom: 15px;
+}
+
+#accounts .institution {
+  margin-bottom: 15px;
+}
+
+#accounts .institution .inst-name {
+  margin-bottom: 10px;
+  font-size: 20pt;
+  font-weight: 300;
+}
+
+#accounts .institution > .account {
+  padding-top: 15px;
+  padding-bottom: 10px;
+  padding-left: 10px;
+  padding-right: 10px;
+  font-size: 16pt;
+  font-weight: 100;
+}
+
+#accounts .institution > .account .balance {
+  float: right;
+}
+
 #landing {
   z-index: 1;
   position: relative;
@@ -93,11 +125,6 @@ body {
   text-align: center;
 }
 
-#link .header {
-  margin-bottom: 5px;
-  font-size: 28pt;
-}
-
 #link .loading {
   margin-bottom: 15px;
 }
@@ -106,34 +133,39 @@ body {
   margin-bottom: 15px;
 }
 
-#accounts {
-  min-width: 600px;
-}
-
-#accounts .none {
+#member .menu {
   font-size: 16pt;
-  margin-bottom: 15px;
 }
 
-#accounts .institution {
-  margin-bottom: 15px;
+#transactions .month {
+  margin-bottom: 20px;
 }
 
-#accounts .institution .inst-name {
-  margin-bottom: 10px;
-  font-size: 20pt;
-  font-weight: 300;
-}
-
-#accounts .institution > .account {
-  padding-top: 15px;
-  padding-bottom: 10px;
-  padding-left: 10px;
-  padding-right: 10px;
-  font-size: 16pt;
+#transactions .date,
+#transactions .total {
+  font-size: 22pt;
   font-weight: 100;
 }
 
-#accounts .institution > .account .balance {
-  float: right;
+#transactions tbody {
+  font-size: 14pt;
+}
+
+#transactions .name {
+  margin-bottom: 3px;
+}
+
+#transactions .categories {
+  font-size: 12pt;
+}
+
+#transactions .total {
+  text-align: right;
+}
+
+#transactions .none {
+  margin-top: 15px;
+  font-size: 16pt;
+  font-weight: 300;
+  text-align: center;
 }

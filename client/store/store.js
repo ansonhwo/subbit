@@ -4,8 +4,12 @@ const reducer = require('../reducers/reducer.js')
 
 const initialState = {
   accounts: [],
+  doneSorting: true,
   institutions: [],
   loadAccounts: false,
+  memberView: 'Accounts',
+  monthsByYear: [],
+  transactionsByMonth: [],
   transactions: [],
   users: [],
   username: 'User',
