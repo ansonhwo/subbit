@@ -1,6 +1,4 @@
 # subbit
-** Work in progress **
-
 A personal reoccurring monthly subscription aggregator.
 
 #### Technologies Involved
