@@ -141,6 +141,7 @@ const sortTransactions = (unsorted) => dispatch => {
   }
 
   // Map through all monthly transactions and check for reoccurrance
+  const initialTransactions = []
   const filteredTransactions = transactionsByMonth.map((transactionsForTheMonth, index) => {
 
     let filtered
@@ -156,6 +157,15 @@ const sortTransactions = (unsorted) => dispatch => {
           let foundDate = moment(lastMonthsTransaction.date, 'YYYY-MM-DD').diff(thisMonthsTransaction.date, 'days')
           let nameCheck = thisMonthsTransaction.name.split(' ').slice(0, 2).join(' ')
 
+          // Build list of first instances of reoccurring transactions
+          if (index === transactionsByMonth.length - 2) {
+            if (lastMonthsTransaction.name.includes(nameCheck)
+                  && foundDate >= dateLowerBound
+                  && foundDate <= dateUpperBound) {
+              initialTransactions.push(lastMonthsTransaction)
+            }
+          }
+
           return (lastMonthsTransaction.name.includes(nameCheck)
                   && foundDate >= dateLowerBound
                   && foundDate <= dateUpperBound)
@@ -168,9 +178,9 @@ const sortTransactions = (unsorted) => dispatch => {
 
   })
 
-  // Last available transaction month has no comparisons available
-  monthsByYear.pop()
-  filteredTransactions.pop()
+  // Append the first occurrances of reoccurring transactions
+  // to the list of transactions, if there are any
+  if (initialTransactions.length) filteredTransactions[filteredTransactions.length - 1] = initialTransactions
 
   dispatch(sortingTransEnd(filteredTransactions, monthsByYear))
 
