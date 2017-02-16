@@ -158,17 +158,15 @@ const sortTransactions = (unsorted) => dispatch => {
           let nameCheck = thisMonthsTransaction.name.split(' ').slice(0, 2).join(' ')
 
           // Build list of first instances of reoccurring transactions
-          if (index === transactionsByMonth.length - 2) {
-            if (lastMonthsTransaction.name.includes(nameCheck)
-                  && foundDate >= dateLowerBound
-                  && foundDate <= dateUpperBound) {
+          if (lastMonthsTransaction.name.includes(nameCheck)
+                && foundDate >= dateLowerBound
+                && foundDate <= dateUpperBound) {
+            if (index === transactionsByMonth.length - 2) {
               initialTransactions.push(lastMonthsTransaction)
             }
+            return true
           }
-
-          return (lastMonthsTransaction.name.includes(nameCheck)
-                  && foundDate >= dateLowerBound
-                  && foundDate <= dateUpperBound)
+          else return false
         })
         return match.length ? true : false
       })
