@@ -12,7 +12,6 @@ const initialState = {
   transactionDetails: [],
   transactionsByMonth: [],
   transactions: [],
-  transactionScroll: 0,
   transactionView: 'all',
   users: [],
   username: 'User',
