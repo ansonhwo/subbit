@@ -13,7 +13,7 @@ exports.development = {
   }
 }
 
-exports.development = {
+exports.production = {
   client: 'postgresql',
   connection: process.env.DATABASE_URL,
   seeds: {
