@@ -9,8 +9,11 @@ const initialState = {
   loadAccounts: false,
   memberView: 'Accounts',
   monthsByYear: [],
+  transactionDetails: [],
   transactionsByMonth: [],
   transactions: [],
+  transactionScroll: 0,
+  transactionView: 'all',
   users: [],
   username: 'User',
   view: 'landing'

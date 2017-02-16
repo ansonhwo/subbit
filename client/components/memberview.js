@@ -3,13 +3,19 @@ const { connect } = require('react-redux')
 
 const Link = require('./link.js')
 const Transactions = require('./transactions.js')
+const Details = require('./details.js')
 
-const MemberView = ({ memberView }) => {
+const MemberView = ({ memberView, transactionView }) => {
   switch (memberView) {
     case 'Accounts':
       return <Link />
     case 'Transactions':
-      return <Transactions />
+      switch (transactionView) {
+        case 'all':
+          return <Transactions />
+        case 'details':
+          return <Details />
+      }
     default:
       return null
   }
@@ -17,7 +23,8 @@ const MemberView = ({ memberView }) => {
 
 const mapProps = state => {
   return {
-    memberView: state.memberView
+    memberView: state.memberView,
+    transactionView: state.transactionView
   }
 }
 
