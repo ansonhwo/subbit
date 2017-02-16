@@ -4,16 +4,29 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const plaid = require('plaid')
 const Cryptr = require('cryptr')
-const knex = require('knex')({
-  client: 'postgresql',
-  connection: {
-    user: 'super',
-    database: 'subbit'
-  }
-})
+
+let knex
+if (process.env.DATABASE_URL) {
+  // Production database
+  knex = require('knex')({
+    client: 'postgresql',
+    connection: process.env.DATABASE_URL
+  })
+}
+else {
+  // Development database
+  knex = require('knex')({
+    client: 'postgresql',
+    connection: {
+      user: 'super',
+      database: 'subbit'
+    }
+  })
+}
+
 const app = express()
 
-const APP_PORT = process.env.APP_PORT || 9999
+const PORT = process.env.PORT || 9999
 const { PLAID_CLIENT_ID, PLAID_SECRET, CRYPTR_SECRET } = process.env
 
 const plaidClient = new plaid.Client(
@@ -250,4 +263,4 @@ function exchangeToken(public_token) {
   })
 }
 
-app.listen(APP_PORT, () => console.log(`Listening on ${APP_PORT}`))
+app.listen(PORT, () => console.log(`Listening on ${PORT}`))

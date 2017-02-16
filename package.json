@@ -6,6 +6,7 @@
   "scripts": {
     "bundle": "browserify -t babelify client/index.js -o server/public/main.js",
     "bundle:watch": "watchify -v -t babelify client/index.js -o server/public/main.js",
+    "heroku-postbuild": "run-s migrate seed:run bundle",
     "migrate:make": "knex migrate:make",
     "migrate": "knex migrate:latest",
     "rollback": "knex migrate:rollback",
@@ -33,6 +34,7 @@
     "babelify": "^7.3.0",
     "browserify": "^14.0.0",
     "nodemon": "^1.11.0",
+    "npm-run-all": "^4.0.1",
     "watchify": "^3.9.0"
   },
   "engines": {
