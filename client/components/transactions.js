@@ -2,6 +2,7 @@ const React = require('react')
 const { connect } = require('react-redux')
 
 const store = require('../store/store.js')
+const sortTransactions = require('../selectors/sortTransactions.js')
 const { changeTransactionView, getTransactionDetails } = require('../actions/actions.js')
 
 const Transactions = ({ monthsByYear, transactionsByMonth, viewTransaction }) => {
@@ -71,9 +72,10 @@ const total = (transactions) => {
 }
 
 const mapProps = state => {
+  const { transactionsByMonth, monthsByYear } = sortTransactions(state)
   return {
-    monthsByYear: state.monthsByYear,
-    transactionsByMonth: state.transactionsByMonth
+    transactionsByMonth,
+    monthsByYear
   }
 }
 
@@ -85,7 +87,9 @@ const mapDispatch = dispatch => {
         target = target.parentElement
       }
 
-      const name = target.dataset.name.split(' ').slice(0, 2).join(' ')
+      console.log(store.getState())
+
+      const name = target.getAttribute('data-name').split(' ').slice(0, 2).join(' ')
       const transactionsByMonth = store.getState().transactionsByMonth
       // Get a list of details for all transactions that match
       // the name of the clicked transaction

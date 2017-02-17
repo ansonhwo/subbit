@@ -1,10 +1,13 @@
+const moment = require('moment')
 const { createSelector } = require('reselect')
 
 const getTransactions = state => state.transactions
 
-module.exports = createSelector(
+const sortTransactions = createSelector(
   [ getTransactions ],
   (transactions) => {
+    console.log('running sortTransactions selector')
+    // console.log('sortTransactions selector')
     // Transaction categories to ignore
     const ignore = [
       'Arts and Entertainment',
@@ -31,7 +34,7 @@ module.exports = createSelector(
 
     // Sort transactions by date descending, and filter out transactions
     // that have a non-zero negative amount & lie within ignored categories
-    const transactions = unsorted.slice()
+    const sortedTransactions = transactions.slice()
       .sort((a, b) => {
         return moment(a.date, 'YYYY-MM-DD').diff(moment(b.date, 'YYYY-MM-DD'), 'days') >= 0 ? -1 : 1
       })
@@ -49,15 +52,15 @@ module.exports = createSelector(
     const monthsByYear = []
     const transactionsByMonth = []
 
-    for (let start = 0; start < transactions.length; start += increment) {
+    for (let start = 0; start < sortedTransactions.length; start += increment) {
 
       let end = -1
-      let monthAndYear = moment(transactions[start].date, 'YYYY-MM-DD').format('MMMM YYYY')
+      let monthAndYear = moment(sortedTransactions[start].date, 'YYYY-MM-DD').format('MMMM YYYY')
       monthsByYear.push(monthAndYear)
 
       // Check for the next instance of a differing month and year
-      for (let check = start + 1; check < transactions.length; check++) {
-        if (moment(transactions[check].date, 'YYYY-MM-DD').format('MMMM YYYY') !== monthAndYear) {
+      for (let check = start + 1; check < sortedTransactions.length; check++) {
+        if (moment(sortedTransactions[check].date, 'YYYY-MM-DD').format('MMMM YYYY') !== monthAndYear) {
           end = check
           break
         }
@@ -65,12 +68,12 @@ module.exports = createSelector(
 
       // If there are still more transactions, check the rest
       if (end >= 1) {
-        transactionsByMonth.push(transactions.slice(start, end))
+        transactionsByMonth.push(sortedTransactions.slice(start, end))
         increment = end - start
       }
       else {
-        transactionsByMonth.push(transactions.slice(start, transactions.length))
-        start = transactions.length
+        transactionsByMonth.push(sortedTransactions.slice(start, sortedTransactions.length))
+        start = sortedTransactions.length
       }
 
     }
@@ -93,9 +96,9 @@ module.exports = createSelector(
             let nameCheck = thisMonthsTransaction.name.split(' ').slice(0, 2).join(' ')
 
             // Build list of first instances of reoccurring transactions
-            if (lastMonthsTransaction.name.includes(nameCheck)
-                  && foundDate >= dateLowerBound
-                  && foundDate <= dateUpperBound) {
+            if (lastMonthsTransaction.name.includes(nameCheck) &&
+                  foundDate >= dateLowerBound &&
+                  foundDate <= dateUpperBound) {
               if (index === transactionsByMonth.length - 2) {
                 initialTransactions.push(lastMonthsTransaction)
               }
@@ -114,7 +117,10 @@ module.exports = createSelector(
     // Append the first occurrances of reoccurring transactions
     // to the list of transactions, if there are any
     if (initialTransactions.length) filteredTransactions[filteredTransactions.length - 1] = initialTransactions
-
-    return filteredTransactions
+    // console.log(JSON.stringify(filteredTransactions, null, 2))
+    // console.log(monthsByYear)
+    return { transactionsByMonth: filteredTransactions, monthsByYear }
   }
 )
+
+module.exports = sortTransactions

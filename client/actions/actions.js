@@ -25,6 +25,8 @@ const getMemberData = (memberData) => {
 }
 
 const getTransactionDetails = (transactionDetails) => {
+  console.log('transaction details (actions.js)')
+  console.log(transactionDetails)
   return { type: 'GET_TRANSACTION_DETAILS', transactionDetails }
 }
 
@@ -68,7 +70,7 @@ const fetchAccounts = (username) => (dispatch) => {
     .then(res => {
       dispatch(sortingTransStart())
       dispatch(getMemberData(res))
-      dispatch(sortTransactions(res.transactions))
+      //dispatch(sortTransactions(res.transactions))
       dispatch(changeView('member'))
     })
     .catch(err => console.error(err))
@@ -205,7 +207,7 @@ module.exports = {
   getUsers,
   linkAccount,
   linkDone,
-  sortTransactions,
+  //sortTransactions,
   sortingTransStart,
   sortingTransEnd
 }

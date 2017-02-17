@@ -3,7 +3,8 @@ const { connect } = require('react-redux')
 
 const Accounts = require('./accounts.js')
 const store = require('../store/store.js')
-const { linkAccount, linkDone, addMemberData, sortTransactions, sortingTransStart } = require('../actions/actions.js')
+const sortTransactions = require('../selectors/sortTransactions.js')
+const { linkAccount, linkDone, addMemberData, sortingTransStart } = require('../actions/actions.js')
 
 const Link = ({ addAccount, loadAccounts }) => {
   return (
@@ -55,8 +56,9 @@ const mapDispatch = dispatch => {
             .then(res => res.json())
             .then(res => {
               dispatch(addMemberData(res))
-              dispatch(sortingTransStart())
-              dispatch(sortTransactions(store.getState().transactions))
+              //dispatch(sortingTransStart())
+              //dispatch(sortTransactions(store.getState().transactions))
+              dispatch()
               dispatch(linkDone())
             })
             .catch(err => console.error(err))
