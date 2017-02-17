@@ -8,6 +8,10 @@ const changeMemberView = (memberView) => {
   return { type: 'CHANGE_MEMBER_VIEW', memberView }
 }
 
+const changeTransactionView = (transactionView) => {
+  return { type: 'CHANGE_TRANSACTION_VIEW', transactionView }
+}
+
 const changeUser = (username) => {
   return { type: 'CHANGE_USER', username }
 }
@@ -18,6 +22,10 @@ const changeView = (view) => {
 
 const getMemberData = (memberData) => {
   return { type: 'GET_MEMBERDATA', memberData }
+}
+
+const getTransactionDetails = (transactionDetails) => {
+  return { type: 'GET_TRANSACTION_DETAILS', transactionDetails }
 }
 
 const getUsers = (users) => {
@@ -187,10 +195,12 @@ const sortTransactions = (unsorted) => dispatch => {
 module.exports = {
   addMemberData,
   changeMemberView,
+  changeTransactionView,
   changeUser,
   changeView,
   fetchAccounts,
   fetchUsers,
+  getTransactionDetails,
   getMemberData,
   getUsers,
   linkAccount,

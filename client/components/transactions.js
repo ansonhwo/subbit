@@ -1,7 +1,10 @@
 const React = require('react')
 const { connect } = require('react-redux')
 
-const Transactions = ({ monthsByYear, transactionsByMonth }) => {
+const store = require('../store/store.js')
+const { changeTransactionView, getTransactionDetails } = require('../actions/actions.js')
+
+const Transactions = ({ monthsByYear, transactionsByMonth, viewTransaction }) => {
   return (
     <div id="transactions" className="ui container">
     {
@@ -24,8 +27,9 @@ const Transactions = ({ monthsByYear, transactionsByMonth }) => {
                       <tbody key={ 'body'+i }>
                       {
                         transactionsByMonth[i].map((transaction, j) => {
+                          let position = [i,j]
                           return (
-                            <tr key={ j }>
+                            <tr key={ j } className="row" data-name={ transaction.name } onClick={ viewTransaction }>
                               <td>{ transaction.date }</td>
                               <td>
                                 <p className="name">{ transaction.name }</p>
@@ -69,4 +73,28 @@ const mapProps = state => {
   }
 }
 
-module.exports = connect(mapProps)(Transactions)
+const mapDispatch = dispatch => {
+  return {
+    viewTransaction: (event) => {
+      let target = event.target.parentElement
+      while (!target.className.includes('row')) {
+        target = target.parentElement
+      }
+
+      const name = target.dataset.name.split(' ').slice(0, 2).join(' ')
+      const transactionsByMonth = store.getState().transactionsByMonth
+      // Get a list of details for all transactions that match
+      // the name of the clicked transaction
+      const details = transactionsByMonth.reduce((matches, transactions) => {
+        return matches.concat(transactions.filter(transaction => {
+          return transaction.name.includes(name)
+        }))
+      }, [])
+
+      dispatch(getTransactionDetails(details))
+      dispatch(changeTransactionView('details'))
+    }
+  }
+}
+
+module.exports = connect(mapProps, mapDispatch)(Transactions)

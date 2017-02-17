@@ -48,6 +48,38 @@ body {
   float: right;
 }
 
+#details {
+  width: 40%;
+  max-width: 600px;
+  margin-bottom: 20px;
+}
+
+#details button {
+  margin-bottom: 10px;
+}
+
+#details .name {
+  margin-bottom: 10px;
+  font-size: 26pt;
+  font-weight: 100;
+}
+
+#details .categories {
+  font-size: 16pt;
+  font-style: italic;
+  font-weight: 100;
+}
+
+#details tbody {
+  font-size: 14pt;
+}
+
+#details .total {
+  font-size: 22pt;
+  font-weight: 100;
+  text-align: center;
+}
+
 #landing {
   z-index: 1;
   position: relative;
@@ -149,6 +181,10 @@ body {
 
 #transactions tbody {
   font-size: 14pt;
+}
+
+#transactions tbody > tr:hover {
+  cursor: pointer;
 }
 
 #transactions .name {
