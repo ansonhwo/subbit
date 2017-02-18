@@ -1,3 +1,5 @@
+https://subbit.herokuapp.com/
+
 # subbit
 A personal reoccurring monthly subscription aggregator.
 
