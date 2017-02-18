@@ -19,7 +19,7 @@ A personal reoccurring monthly subscription aggregator.
 - Plaid Link & Plaid Node
 - Moment.js
 
-#### Features
+## Features
 1) Landing Page & Login
 
 ![issue1_1](https://cloud.githubusercontent.com/assets/7650243/22898132/fecdae34-f1da-11e6-9ee3-368085c75851.gif)
