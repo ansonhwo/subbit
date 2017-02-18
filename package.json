@@ -13,6 +13,8 @@
     "seed:make": "knex seed:make",
     "seed:run": "knex seed:run",
     "start": "node server/index.js",
+    "test": "mocha",
+    "tdd": "mocha -w -R nyan",
     "watch": "nodemon server/index.js"
   },
   "dependencies": {
@@ -33,9 +35,12 @@
     "babel-plugin-transform-react-jsx": "^6.22.0",
     "babelify": "^7.3.0",
     "browserify": "^14.0.0",
+    "chai": "^3.5.0",
+    "mocha": "^3.2.0",
     "moment": "^2.17.1",
     "nodemon": "^1.11.0",
     "npm-run-all": "^4.0.1",
+    "redux-mock-store": "^1.2.2",
     "watchify": "^3.9.0"
   },
   "engines": {
