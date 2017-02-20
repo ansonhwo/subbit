@@ -2,7 +2,6 @@ const React = require('react')
 const { connect } = require('react-redux')
 
 const store = require('../store/store.js')
-const sortTransactions = require('../selectors/sortTransactions.js')
 const { changeTransactionView, getTransactionDetails } = require('../actions/actions.js')
 
 const Transactions = ({ monthsByYear, transactionsByMonth, viewTransaction }) => {
@@ -72,10 +71,9 @@ const total = (transactions) => {
 }
 
 const mapProps = state => {
-  const { transactionsByMonth, monthsByYear } = sortTransactions(state)
   return {
-    transactionsByMonth,
-    monthsByYear
+    transactionsByMonth: state.transactionsByMonth,
+    monthsByYear: state.monthsByYear
   }
 }
 
@@ -86,8 +84,6 @@ const mapDispatch = dispatch => {
       while (!target.className.includes('row')) {
         target = target.parentElement
       }
-
-      console.log(store.getState())
 
       const name = target.getAttribute('data-name').split(' ').slice(0, 2).join(' ')
       const transactionsByMonth = store.getState().transactionsByMonth
