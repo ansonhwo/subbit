@@ -20,6 +20,10 @@ const changeView = (view) => {
   return { type: 'CHANGE_VIEW', view }
 }
 
+const deletePrompt = (deletePrompt) => {
+  return { type: 'DELETE_PROMPT', deletePrompt }
+}
+
 const getMemberData = (memberData) => {
   return { type: 'GET_MEMBERDATA', memberData }
 }
@@ -202,6 +206,7 @@ module.exports = {
   changeTransactionView,
   changeUser,
   changeView,
+  deletePrompt,
   fetchAccounts,
   fetchUsers,
   getTransactionDetails,

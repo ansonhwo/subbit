@@ -30,6 +30,10 @@ const reducer = (state, action) => {
       return Object.assign({}, state, {
         view: action.view
       })
+    case 'DELETE_PROMPT':
+      return Object.assign({}, state, {
+        deletePrompt: action.deletePrompt
+      })
     case 'GET_MEMBERDATA':
       return Object.assign({}, state, {
         accounts: action.memberData.accounts,

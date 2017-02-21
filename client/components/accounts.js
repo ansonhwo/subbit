@@ -2,9 +2,9 @@ const React = require('react')
 const { connect } = require('react-redux')
 
 const store = require('../store/store.js')
-const { changeTransactionView, linkAccount, linkDone, getMemberData, sortingTransStart, sortTransactions, toggleAccounts } = require('../actions/actions.js')
+const { changeTransactionView, deletePrompt, linkAccount, linkDone, getMemberData, sortingTransStart, sortTransactions, toggleAccounts } = require('../actions/actions.js')
 
-const Accounts = ({ accounts, institutions, deleteAccounts, toggleAccount, toggleAll }) => {
+const Accounts = ({ accounts, institutions, deleteAccounts, deletePrompt, deletePromptClose, deletePromptOpen, toggleAccount, toggleAll }) => {
   if (!institutions.length) {
     return (
       <div id="accounts" className="ui container">
@@ -15,13 +15,28 @@ const Accounts = ({ accounts, institutions, deleteAccounts, toggleAccount, toggl
 
   return (
     <div id="accounts" className="ui container">
+      <div className={ "ui page dimmer" + (deletePrompt ? " active" : "") }>
+        <div className="content">
+          <div className="ui container">
+            <h2 className="ui inverted icon header">
+              <i className="credit card icon"></i>
+              Delete Accounts
+            </h2>
+            <p>Are you sure you want to delete these accounts?</p>
+            <span>
+              <button className="ui red inverted button" onClick={ deletePromptClose }><i className="remove icon"></i>Cancel</button>
+              <button className="ui green inverted button" onClick={ deleteAccounts }><i className="checkmark icon"></i>OK</button>
+            </span>
+          </div>
+        </div>
+      </div>
     {
       !institutions.filter(institution => institution.checked).length
         ? <button className="ui button" onClick={ toggleAll }>Select All</button>
         : (
           <span>
             <button className="ui button" onClick={ toggleAll }>Select All</button>
-            <button className="ui negative button" onClick={ deleteAccounts }>Delete Account(s)</button>
+            <button className="ui negative button" onClick={ deletePromptOpen }>Delete Account(s)</button>
           </span>
         )
     }
@@ -55,6 +70,7 @@ const Accounts = ({ accounts, institutions, deleteAccounts, toggleAccount, toggl
 const mapProps = state => {
   return {
     accounts: state.accounts,
+    deletePrompt: state.deletePrompt,
     institutions: state.institutions
   }
 }
@@ -85,6 +101,12 @@ const mapDispatch = dispatch => {
           dispatch(changeTransactionView('all'))
         })
         .catch(err => console.error(err))
+    },
+    deletePromptClose: (event) => {
+      dispatch(deletePrompt(false))
+    },
+    deletePromptOpen: (event) => {
+      dispatch(deletePrompt(true))
     },
     toggleAccount: (event) => {
       const id = event.target.dataset.id
