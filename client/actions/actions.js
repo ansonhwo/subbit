@@ -70,7 +70,6 @@ const fetchAccounts = (username) => (dispatch) => {
   fetch('/connect/get', options)
     .then(res => res.json())
     .then(res => {
-      //console.log(res)
       dispatch(sortingTransStart())
       dispatch(getMemberData(res))
       dispatch(sortTransactions(res.transactions))

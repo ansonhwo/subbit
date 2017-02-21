@@ -2,7 +2,7 @@ const React = require('react')
 const { connect } = require('react-redux')
 
 const store = require('../store/store.js')
-const { toggleAccounts } = require('../actions/actions.js')
+const { changeTransactionView, linkAccount, linkDone, getMemberData, sortingTransStart, sortTransactions, toggleAccounts } = require('../actions/actions.js')
 
 const Accounts = ({ accounts, institutions, deleteAccounts, toggleAccount, toggleAll }) => {
   if (!institutions.length) {
@@ -31,8 +31,8 @@ const Accounts = ({ accounts, institutions, deleteAccounts, toggleAccount, toggl
         return (
           <div key={ inst.inst_name+i } className="ui container institution">
             <div className="ui checkbox">
-              <input type="checkbox" data-id={ inst.inst_id } onClick={ toggleAccount } checked={ inst.checked }></input>
-              <label><i>{ inst.inst_name }</i></label>
+              <input type="checkbox" data-id={ inst.inst_id } onChange={ toggleAccount } checked={ inst.checked }></input>
+              <label>{ inst.inst_name }</label>
             </div>
             {
               accounts.filter(account => account.inst_name === inst.inst_name)
@@ -76,7 +76,15 @@ const mapDispatch = dispatch => {
 
       fetch(`/connect/${username}/${accountsToggled}`, options)
         .then(res => res.json())
-        .then(res => console.log(res))
+        .then(res => {
+          dispatch(linkAccount())
+          dispatch(sortingTransStart())
+          dispatch(getMemberData(res))
+          dispatch(sortTransactions(res.transactions))
+          dispatch(linkDone())
+          dispatch(changeTransactionView('all'))
+        })
+        .catch(err => console.error(err))
     },
     toggleAccount: (event) => {
       const id = event.target.dataset.id

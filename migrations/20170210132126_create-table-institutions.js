@@ -3,7 +3,7 @@ exports.up = function(knex, Promise) {
   const query = knex.schema.createTableIfNotExists('institutions', table => {
     table.increments('id').primary()
     table.string('inst_id').notNullable().unique()
-    table.string('inst_name').notNullable()
+    table.text('inst_name').notNullable()
   })
 
   return query
