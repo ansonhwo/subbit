@@ -48,6 +48,10 @@ const sortingTransEnd = (transactionsByMonth, monthsByYear) => {
   return { type: 'SORT_TRANSACTIONS', transactionsByMonth, monthsByYear, doneSorting: true }
 }
 
+const toggleAccounts = (institutions) => {
+  return { type: 'TOGGLE_ACCOUNTS', institutions }
+}
+
 const fetchUsers = () => (dispatch) => {
   fetch('/users')
     .then(res => res.json())
@@ -66,6 +70,7 @@ const fetchAccounts = (username) => (dispatch) => {
   fetch('/connect/get', options)
     .then(res => res.json())
     .then(res => {
+      //console.log(res)
       dispatch(sortingTransStart())
       dispatch(getMemberData(res))
       dispatch(sortTransactions(res.transactions))
@@ -207,5 +212,6 @@ module.exports = {
   linkDone,
   sortTransactions,
   sortingTransStart,
-  sortingTransEnd
+  sortingTransEnd,
+  toggleAccounts
 }

@@ -4,6 +4,7 @@ const reducer = require('../reducers/reducer.js')
 
 const initialState = {
   accounts: [],
+  accountsToggled: [],
   doneSorting: true,
   institutions: [],
   loadAccounts: false,
