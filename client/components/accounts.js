@@ -74,10 +74,11 @@ const mapDispatch = dispatch => {
         }
       }
 
+      dispatch(linkAccount())
+
       fetch(`/connect/${username}/${accountsToggled}`, options)
         .then(res => res.json())
         .then(res => {
-          dispatch(linkAccount())
           dispatch(sortingTransStart())
           dispatch(getMemberData(res))
           dispatch(sortTransactions(res.transactions))
