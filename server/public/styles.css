@@ -26,13 +26,12 @@ body {
 }
 
 #accounts .institution {
-  margin-bottom: 15px;
+  margin-bottom: 20px;
 }
 
-#accounts .institution .inst-name {
-  margin-bottom: 10px;
-  font-size: 20pt;
-  font-weight: 300;
+#accounts .institution .checkbox label {
+  padding-left: 30px;
+  font-size: 24pt;
 }
 
 #accounts .institution > .account {

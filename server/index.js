@@ -93,7 +93,6 @@ app.post('/connect', ({ body }, res) => {
         .then(userData => {
           // Has the user already registered an account with the provided institution?
           if (!userData.length) return false
-
           else return true
         })
     })
@@ -122,8 +121,13 @@ app.post('/connect', ({ body }, res) => {
           token: encrypt_token
         })
         .then(_ => {
-          const formattedData = formatResponse(memberData, inst_name)
-          formattedData.inst_name = inst_name
+          const institution = {
+            checked: false,
+            inst_name,
+            inst_id: inst_type
+          }
+          const formattedData = formatResponse(memberData, institution)
+          formattedData.institution = institution
           return formattedData
         })
     })
@@ -137,63 +141,91 @@ app.post('/connect/get', ({ body }, res) => {
 
   const username = body.username
 
-  // Get institution names for current user's information
-  knex('institutions')
-    .select('inst_name')
-    .innerJoin('userdata', function() {
-      this.on('userdata.inst_id', '=', 'institutions.inst_id')
-    })
-    .where('userdata.username', username)
-    .then(instList => {
-      if (!instList.length) return []
-
-      return instList.map(inst => inst.inst_name)
-    })
-    .then(inst_names => {
-      if (!inst_names.length) return { transactions: [], accounts: [], inst_names: [] }
-
-      // Checking if the current user has any previously registered accounts
-      return knex('userdata')
-        .select('token')
-        .where('username', username)
-        .then(tokenList => {
-
-          const tokens = tokenList.map(item => item.token)
-
-          // If no registered accounts, return nothing
-          if (!tokens.length) return { transactions: [], accounts: [], inst_names: [] }
-
-          // Registered accounts found, return account & transaction information
-          // for all registered accounts
-          return Promise.all(tokens.map(token => {
-            return getMemberData(cryptr.decrypt(token))
-          }))
-            // Filter out irrelevant information
-            .then(responses => {
-              return responses.map((response, index) => {
-                return formatResponse(response, inst_names[index])
-              })
-            })
-            // Build a new object with the formatted information
-            .then(responses => {
-                const formattedResponses = responses.reduce((obj, data) => {
-                  obj.accounts = [...obj.accounts, ...data.accounts]
-                  obj.transactions = [...obj.transactions, ...data.transactions]
-                  return obj
-                }, { transactions: [], accounts: [] })
-
-                formattedResponses.inst_names = inst_names
-
-                return formattedResponses
-            })
-
-        })
-    })
-    .then(result => {
-      res.status(201).json(result)
-    })
+  formattedMemberData(username)
+    .then(result => res.status(201).json(result))
+    .catch(err => res.sendStatus(404))
 
 })
+
+app.delete('/connect/:username/:inst_ids', (req, res) => {
+  const { username, inst_ids } = req.params
+  const instList = inst_ids.split('+')
+
+  knex.del()
+    .from('userdata')
+    .whereIn('inst_id', instList)
+    .andWhere('username', username)
+    .then(_ => formattedMemberData(username))
+    .then(result => res.status(200).json(result))
+    .catch(err => res.sendStatus(404))
+})
+
+// Return formatted account and transaction information for all user accounts
+function formattedMemberData(username) {
+
+  return new Promise((resolve, reject) => {
+    // Get institution names for current user's information
+    knex.select(knex.raw('i.inst_name, i.inst_id'))
+      .from(knex.raw('institutions as i'))
+      .innerJoin('userdata', function() {
+        this.on(knex.raw('userdata.inst_id = i.inst_id'))
+      })
+      .where('userdata.username', username)
+      .then(instList => {
+        if (!instList.length) return []
+
+        return instList.map(inst => {
+          return {
+            checked: false,
+            inst_name: inst.inst_name,
+            inst_id: inst.inst_id
+          }
+        })
+      })
+      .then(instList => {
+        if (!instList.length) resolve({ transactions: [], accounts: [], institutions: [] })
+
+        // Checking if the current user has any previously registered accounts
+        return knex('userdata')
+          .select('token')
+          .where('username', username)
+          .then(tokenList => {
+
+            const tokens = tokenList.map(item => item.token)
+
+            // If no registered accounts, return nothing
+            if (!tokens.length) resolve({ transactions: [], accounts: [], institutions: [] })
+
+            // Registered accounts found, return account & transaction information
+            // for all registered accounts
+            return Promise.all(tokens.map(token => {
+              return getMemberData(cryptr.decrypt(token))
+            }))
+              // Filter out irrelevant information
+              .then(responses => {
+                return responses.map((response, index) => {
+                  return formatResponse(response, instList[index])
+                })
+              })
+              // Build a new object with the formatted information
+              .then(responses => {
+                  const formattedResponses = responses.reduce((obj, data) => {
+                    obj.accounts = [...obj.accounts, ...data.accounts]
+                    obj.transactions = [...obj.transactions, ...data.transactions]
+                    return obj
+                  }, { transactions: [], accounts: [] })
+
+                  formattedResponses.institutions = instList
+
+                  resolve(formattedResponses)
+              })
+
+          })
+      })
+      .catch(err => reject(err))
+  })
+
+}
 
 // Asynchronously fetch a series of account details for a collection of tokens
 function getMemberData(token) {
@@ -206,11 +238,12 @@ function getMemberData(token) {
 }
 
 // Format account objects with relevant information
-function formatAccounts(accounts, inst_name) {
+function formatAccounts(accounts, institution) {
   return accounts.map(account => {
     return {
       balance: account.balance.current,
-      inst_name,
+      inst_name: institution.inst_name,
+      inst_id: institution.inst_id,
       name: account.meta.name,
       number: account.meta.number,
       type: account.type,
@@ -234,9 +267,9 @@ function formatTransactions(transactions) {
 }
 
 // Format response objects with relevant information
-function formatResponse(response, inst_name) {
+function formatResponse(response, institution) {
   return {
-    accounts: formatAccounts(response.accounts, inst_name),
+    accounts: formatAccounts(response.accounts, institution),
     transactions: formatTransactions(response.transactions)
   }
 }

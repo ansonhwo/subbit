@@ -12,7 +12,7 @@ const reducer = (state, action) => {
       return Object.assign({}, state, {
         accounts: [...state.accounts, ...action.memberData.accounts],
         transactions: [...state.transactions, ...action.memberData.transactions],
-        institutions: [...state.institutions, action.memberData.inst_name]
+        institutions: [...state.institutions, action.memberData.institution]
       })
     case 'CHANGE_MEMBER_VIEW':
       return Object.assign({}, state, {
@@ -34,7 +34,7 @@ const reducer = (state, action) => {
       return Object.assign({}, state, {
         accounts: action.memberData.accounts,
         transactions: action.memberData.transactions,
-        institutions: action.memberData.inst_names
+        institutions: action.memberData.institutions
       })
     case 'GET_TRANSACTION_DETAILS':
       return Object.assign({}, state, {
@@ -57,6 +57,10 @@ const reducer = (state, action) => {
           transactionsByMonth: action.transactionsByMonth
         })
       }
+    case 'TOGGLE_ACCOUNTS':
+      return Object.assign({}, state, {
+        institutions: action.institutions
+      })
     default:
       return state
   }

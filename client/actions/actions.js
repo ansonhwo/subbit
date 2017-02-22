@@ -48,6 +48,10 @@ const sortingTransEnd = (transactionsByMonth, monthsByYear) => {
   return { type: 'SORT_TRANSACTIONS', transactionsByMonth, monthsByYear, doneSorting: true }
 }
 
+const toggleAccounts = (institutions) => {
+  return { type: 'TOGGLE_ACCOUNTS', institutions }
+}
+
 const fetchUsers = () => (dispatch) => {
   fetch('/users')
     .then(res => res.json())
@@ -207,5 +211,6 @@ module.exports = {
   linkDone,
   sortTransactions,
   sortingTransStart,
-  sortingTransEnd
+  sortingTransEnd,
+  toggleAccounts
 }
