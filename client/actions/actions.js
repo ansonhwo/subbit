@@ -153,44 +153,52 @@ const sortTransactions = (unsorted) => dispatch => {
   }
 
   // Map through all monthly transactions and check for reoccurrance
-  const initialTransactions = []
   const filteredTransactions = transactionsByMonth.map((transactionsForTheMonth, index) => {
 
-    let filtered
-    if (index === transactionsByMonth.length - 1) return []
-    else {
-      filtered = transactionsForTheMonth.filter(thisMonthsTransaction => {
-        // 4 day buffer
-        const dateLowerBound = -34
-        const dateUpperBound = -26
+    const filtered = transactionsForTheMonth.filter(thisMonthsTransaction => {
 
+      // 4 day buffer
+      const lastDateLowerBound = -34
+      const lastDateUpperBound = -26
+      const nextDateLowerBound = 26
+      const nextDateUpperBound = 34
+
+      const nameCheck = thisMonthsTransaction.name.split(' ').slice(0, 2).join(' ')
+
+      if (index < transactionsByMonth.length - 1) {
         // Check for identical transactions in the month prior
-        let match = transactionsByMonth[index + 1].filter(lastMonthsTransaction => {
-          let foundDate = moment(lastMonthsTransaction.date, 'YYYY-MM-DD').diff(thisMonthsTransaction.date, 'days')
-          let nameCheck = thisMonthsTransaction.name.split(' ').slice(0, 2).join(' ')
+        const lastMonthsTransactions = transactionsByMonth[index + 1]
+        for (let lastIndex = 0; lastIndex < lastMonthsTransactions.length; lastIndex++) {
+          let foundDate = moment(lastMonthsTransactions[lastIndex].date, 'YYYY-MM-DD').diff(thisMonthsTransaction.date, 'days')
 
-          // Build list of first instances of reoccurring transactions
-          if (lastMonthsTransaction.name.includes(nameCheck)
-                && foundDate >= dateLowerBound
-                && foundDate <= dateUpperBound) {
-            if (index === transactionsByMonth.length - 2) {
-              initialTransactions.push(lastMonthsTransaction)
-            }
+          if (lastMonthsTransactions[lastIndex].name.includes(nameCheck) &&
+                foundDate >= lastDateLowerBound &&
+                foundDate <= lastDateUpperBound) {
             return true
           }
-          else return false
-        })
-        return match.length ? true : false
-      })
-    }
+        }
+      }
+
+      if (index > 0) {
+        // Check for identical transactions in the month ahead
+        const nextMonthsTransactions = transactionsByMonth[index - 1]
+        for (let nextIndex = 0; nextIndex < nextMonthsTransactions.length; nextIndex++) {
+          let foundDate = moment(nextMonthsTransactions[nextIndex].date, 'YYYY-MM-DD').diff(thisMonthsTransaction.date, 'days')
+
+          if (nextMonthsTransactions[nextIndex].name.includes(nameCheck) &&
+                foundDate >= nextDateLowerBound &&
+                foundDate <= nextDateUpperBound) {
+            return true
+          }
+        }
+      }
+
+      return false
+    })
 
     return filtered
 
   })
-
-  // Append the first occurrances of reoccurring transactions
-  // to the list of transactions, if there are any
-  if (initialTransactions.length) filteredTransactions[filteredTransactions.length - 1] = initialTransactions
 
   dispatch(sortingTransEnd(filteredTransactions, monthsByYear))
 
