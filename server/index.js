@@ -2,6 +2,7 @@
 
 const express = require('express')
 const bodyParser = require('body-parser')
+const moment = require('moment')
 const plaid = require('plaid')
 const Cryptr = require('cryptr')
 
@@ -108,7 +109,7 @@ app.post('/connect', ({ body }, res) => {
     })
     .then(memberData => {
       // User has already registered, no need to add account info
-      if (!memberData) return { accounts: [], transactions: [], inst_name: null }
+      if (!memberData) return { accounts: [], transactions: [], institutions: [], monthsByYear: [] }
 
       // Encrypt access token
       const encrypt_token = cryptr.encrypt(memberData.access_token)
@@ -120,16 +121,7 @@ app.post('/connect', ({ body }, res) => {
           inst_id: inst_type,
           token: encrypt_token
         })
-        .then(_ => {
-          const institution = {
-            checked: false,
-            inst_name,
-            inst_id: inst_type
-          }
-          const formattedData = formatResponse(memberData, institution)
-          formattedData.institution = institution
-          return formattedData
-        })
+        .then(_ => formattedMemberData(username))
     })
     .then(formattedData => res.status(201).json(formattedData))
     .catch(err => res.sendStatus(404))
@@ -183,7 +175,7 @@ function formattedMemberData(username) {
         })
       })
       .then(instList => {
-        if (!instList.length) resolve({ transactions: [], accounts: [], institutions: [] })
+        if (!instList.length) resolve({ transactions: [], accounts: [], institutions: [], monthsByYear: [] })
 
         // Checking if the current user has any previously registered accounts
         return knex('userdata')
@@ -194,7 +186,7 @@ function formattedMemberData(username) {
             const tokens = tokenList.map(item => item.token)
 
             // If no registered accounts, return nothing
-            if (!tokens.length) resolve({ transactions: [], accounts: [], institutions: [] })
+            if (!tokens.length) resolve({ transactions: [], accounts: [], institutions: [], monthsByYear: [] })
 
             // Registered accounts found, return account & transaction information
             // for all registered accounts
@@ -214,8 +206,11 @@ function formattedMemberData(username) {
                     obj.transactions = [...obj.transactions, ...data.transactions]
                     return obj
                   }, { transactions: [], accounts: [] })
+                  const { filteredTransactions, monthsByYear } = sortTransactions(formattedResponses.transactions)
 
                   formattedResponses.institutions = instList
+                  formattedResponses.transactions = filteredTransactions
+                  formattedResponses.monthsByYear = monthsByYear
 
                   resolve(formattedResponses)
               })
@@ -224,6 +219,130 @@ function formattedMemberData(username) {
       })
       .catch(err => reject(err))
   })
+
+}
+
+// Sort transactions chronologically and filter by amount & category
+const sortTransactions = (unsorted) => {
+
+  // Transaction categories to ignore
+  const ignore = [
+    'Arts and Entertainment',
+    'ATM',
+    'Bank Fees',
+    'Credit Card',
+    'Deposit',
+    'Food and Drink',
+    'Groceries',
+    'Gas Stations',
+    'Government Departments and Agencies',
+    'Interest',
+    'Payroll',
+    'Restaurants',
+    'Running',
+    'Shops',
+    'Stadiums and Arenas',
+    'Supermarkets and Groceries',
+    'Tax',
+    'Third Party',
+    'Travel',
+    'Withdrawal'
+  ]
+
+  // Sort transactions by date descending
+  const transactions = unsorted.slice()
+    .sort((a, b) => {
+      return moment(a.date, 'YYYY-MM-DD').diff(moment(b.date, 'YYYY-MM-DD'), 'days') >= 0 ? -1 : 1
+    })
+
+  // Iterate through all of the transactions (by month)
+  // Get the index ranges of all transactions in the same month and year
+  // Build an array of arrays grouped by month and year, date descending
+  let increment = 1
+  const monthsByYear = []
+  const transactionsByMonth = []
+
+  for (let start = 0; start < transactions.length; start += increment) {
+
+    let end = -1
+    let monthAndYear = moment(transactions[start].date, 'YYYY-MM-DD').format('MMMM YYYY')
+    monthsByYear.push(monthAndYear)
+
+    // Check for the next instance of a differing month and year
+    for (let check = start + 1; check < transactions.length; check++) {
+      if (moment(transactions[check].date, 'YYYY-MM-DD').format('MMMM YYYY') !== monthAndYear) {
+        end = check
+        break
+      }
+    }
+
+    // If there are still more transactions, check the rest
+    if (end >= 1) {
+      transactionsByMonth.push(transactions.slice(start, end))
+      increment = end - start
+    }
+    else {
+      transactionsByMonth.push(transactions.slice(start, transactions.length))
+      start = transactions.length
+    }
+
+  }
+
+  // Map through all monthly transactions and check for reoccurrance
+  const filteredTransactions = transactionsByMonth.map((transactionsForTheMonth, index) => {
+
+    const filtered = transactionsForTheMonth.filter(thisMonthsTransaction => {
+
+      // Filter out transactions that have a non-zero negative amount & lie within ignored categories
+      if (thisMonthsTransaction.amount < 0 ||
+            thisMonthsTransaction.category.filter(category => ignore.includes(category)).length) {
+        return false
+      }
+
+      // 4 day buffer
+      const lastDateLowerBound = -34
+      const lastDateUpperBound = -26
+      const nextDateLowerBound = 26
+      const nextDateUpperBound = 34
+
+      const nameCheck = thisMonthsTransaction.name.split(' ').slice(0, 2).join(' ')
+
+      if (index < transactionsByMonth.length - 1) {
+        // Check for identical transactions in the month prior
+        const lastMonthsTransactions = transactionsByMonth[index + 1]
+        for (let lastIndex = 0; lastIndex < lastMonthsTransactions.length; lastIndex++) {
+          let foundDate = moment(lastMonthsTransactions[lastIndex].date, 'YYYY-MM-DD').diff(thisMonthsTransaction.date, 'days')
+
+          if (lastMonthsTransactions[lastIndex].name.includes(nameCheck) &&
+                foundDate >= lastDateLowerBound &&
+                foundDate <= lastDateUpperBound) {
+            return true
+          }
+        }
+      }
+
+      if (index > 0) {
+        // Check for identical transactions in the month ahead
+        const nextMonthsTransactions = transactionsByMonth[index - 1]
+        for (let nextIndex = 0; nextIndex < nextMonthsTransactions.length; nextIndex++) {
+          let foundDate = moment(nextMonthsTransactions[nextIndex].date, 'YYYY-MM-DD').diff(thisMonthsTransaction.date, 'days')
+
+          if (nextMonthsTransactions[nextIndex].name.includes(nameCheck) &&
+                foundDate >= nextDateLowerBound &&
+                foundDate <= nextDateUpperBound) {
+            return true
+          }
+        }
+      }
+
+      return false
+    })
+
+    return filtered
+
+  })
+
+  return { filteredTransactions, monthsByYear }
 
 }
 
