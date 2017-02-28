@@ -4,7 +4,7 @@ const { connect } = require('react-redux')
 const store = require('../store/store.js')
 const { changeTransactionView, getTransactionDetails } = require('../actions/actions.js')
 
-const Transactions = ({ monthsByYear, transactionsByMonth, viewTransaction }) => {
+const Transactions = ({ monthsByYear, transactions, viewTransaction }) => {
   if (!monthsByYear.length) {
     return (
       <div id="transactions" className="ui container">
@@ -18,7 +18,7 @@ const Transactions = ({ monthsByYear, transactionsByMonth, viewTransaction }) =>
     {
       monthsByYear.map((date, i) => {
         return (
-          !transactionsByMonth[i].length
+          !transactions[i].length
             ? (
               <div key={ i } className="ui raised inverted blue segment month">
                 <div key={ date+i } className="date">{ date }</div>
@@ -38,7 +38,7 @@ const Transactions = ({ monthsByYear, transactionsByMonth, viewTransaction }) =>
                   </thead>
                   <tbody key={ 'body'+i }>
                   {
-                    transactionsByMonth[i].map((transaction, j) => {
+                    transactions[i].map((transaction, j) => {
                       let position = [i,j]
                       return (
                         <tr key={ j } className="row" data-name={ transaction.name } onClick={ viewTransaction }>
@@ -54,7 +54,7 @@ const Transactions = ({ monthsByYear, transactionsByMonth, viewTransaction }) =>
                   }
                   </tbody>
                 </table>
-                <div key={ total+i } className="total">Monthly Total: ${ total(transactionsByMonth[i]).toFixed(2) }</div>
+                <div key={ total+i } className="total">Monthly Total: ${ total(transactions[i]).toFixed(2) }</div>
               </div>
             )
         )
@@ -72,7 +72,7 @@ const total = (transactions) => {
 
 const mapProps = state => {
   return {
-    transactionsByMonth: state.transactionsByMonth,
+    transactions: state.transactions,
     monthsByYear: state.monthsByYear
   }
 }
@@ -86,11 +86,11 @@ const mapDispatch = dispatch => {
       }
 
       const name = target.getAttribute('data-name').split(' ').slice(0, 2).join(' ')
-      const transactionsByMonth = store.getState().transactionsByMonth
+      const transactions = store.getState().transactions
       // Get a list of details for all transactions that match
       // the name of the clicked transaction
-      const details = transactionsByMonth.reduce((matches, transactions) => {
-        return matches.concat(transactions.filter(transaction => {
+      const details = transactions.reduce((matches, transactionsByMonth) => {
+        return matches.concat(transactionsByMonth.filter(transaction => {
           return transaction.name.includes(name)
         }))
       }, [])

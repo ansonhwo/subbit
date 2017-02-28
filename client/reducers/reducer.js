@@ -8,12 +8,6 @@ const reducer = (state, action) => {
       return Object.assign({}, state, {
         loadAccounts: false
       })
-    case 'ADD_MEMBERDATA':
-      return Object.assign({}, state, {
-        accounts: [...state.accounts, ...action.memberData.accounts],
-        transactions: [...state.transactions, ...action.memberData.transactions],
-        institutions: [...state.institutions, action.memberData.institution]
-      })
     case 'CHANGE_MEMBER_VIEW':
       return Object.assign({}, state, {
         memberView: action.memberView
@@ -34,7 +28,8 @@ const reducer = (state, action) => {
       return Object.assign({}, state, {
         accounts: action.memberData.accounts,
         transactions: action.memberData.transactions,
-        institutions: action.memberData.institutions
+        institutions: action.memberData.institutions,
+        monthsByYear: action.memberData.monthsByYear
       })
     case 'GET_TRANSACTION_DETAILS':
       return Object.assign({}, state, {
@@ -44,19 +39,6 @@ const reducer = (state, action) => {
       return Object.assign({}, state, {
         users: action.users
       })
-    case 'SORT_TRANSACTIONS':
-      if (!action.doneSorting) {
-        return Object.assign({}, state, {
-          doneSorting: action.doneSorting
-        })
-      }
-      else {
-        return Object.assign({}, state, {
-          doneSorting: action.doneSorting,
-          monthsByYear: action.monthsByYear,
-          transactionsByMonth: action.transactionsByMonth
-        })
-      }
     case 'TOGGLE_ACCOUNTS':
       return Object.assign({}, state, {
         institutions: action.institutions
