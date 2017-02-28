@@ -1,4 +1,5 @@
 const actions = require('../client/actions/actions.js')
+const store = require('../client/store/store/js')
 const { expect } = require('chai')
 
 describe('Unit Testing', () => {
@@ -143,6 +144,10 @@ describe('Unit Testing', () => {
       const expectedAction = { type: 'TOGGLE_ACCOUNTS', institutions }
 
       expect(actions.toggleAccounts(institutions)).to.deep.equal(expectedAction)
+    })
+
+    it('fetchUsers should dispatch an action to update the store with the list of users', () => {
+      const expectedAction = {  }
     })
 
   })
