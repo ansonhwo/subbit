@@ -223,7 +223,7 @@ function formattedMemberData(username) {
 }
 
 // Sort transactions chronologically and filter by amount & category
-const sortTransactions = (unsorted) => {
+function sortTransactions(unsorted) {
 
   // Transaction categories to ignore
   const ignore = [
@@ -253,6 +253,10 @@ const sortTransactions = (unsorted) => {
   const transactions = unsorted.slice()
     .sort((a, b) => {
       return moment(a.date, 'YYYY-MM-DD').diff(moment(b.date, 'YYYY-MM-DD'), 'days') >= 0 ? -1 : 1
+    })
+    .filter(transaction => {
+      let check = transaction.category.filter(category => ignore.includes(category))
+      return transaction.amount > 0 && !check.length ? true : false
     })
 
   // Iterate through all of the transactions (by month)
@@ -292,12 +296,6 @@ const sortTransactions = (unsorted) => {
   const filteredTransactions = transactionsByMonth.map((transactionsForTheMonth, index) => {
 
     const filtered = transactionsForTheMonth.filter(thisMonthsTransaction => {
-
-      // Filter out transactions that have a non-zero negative amount & lie within ignored categories
-      if (thisMonthsTransaction.amount < 0 ||
-            thisMonthsTransaction.category.filter(category => ignore.includes(category)).length) {
-        return false
-      }
 
       // 4 day buffer
       const lastDateLowerBound = -34
